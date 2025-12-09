@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baseball Draft Simulator 2026</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #005a9c;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #005a9c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #004080;
+    }
+    .draft-picks {
+      margin-top: 30px;
+    }
+    .draft-pick {
+      background: #e0f0ff;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Baseball Draft Simulator 2026</h1>
+    <p>Simulate your own baseball draft picks!</p>
+  </header>
+
+  <div class="container">
+    <label for="teamSelect">Select Team:</label>
+    <select id="teamSelect"></select>
+
+    <label for="playerSelect">Select Player:</label>
+    <select id="playerSelect"></select>
+
+    <button id="draftButton">Make Draft Pick</button>
+
+    <div class="draft-picks" id="draftPicksContainer">
+      <h2>Draft Picks So Far</h2>
+      <div id="draftPicksList">
+        <p>No picks made yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Complete list of 30 MLB teams
+    const teams = [
+      "Arizona Diamondbacks",
+      "Atlanta Braves",
+      "Baltimore Orioles",
+      "Boston Red Sox",
+      "Chicago Cubs",
+      "Chicago White Sox",
+      "Cincinnati Reds",
+      "Cleveland Guardians",
+      "Colorado Rockies",
+      "Detroit Tigers",
+      "Houston Astros",
+      "Kansas City Royals",
+      "Los Angeles Angels",
+      "Los Angeles Dodgers",
+      "Miami Marlins",
+      "Milwaukee Brewers",
+      "Minnesota Twins",
+      "New York Mets",
+      "New York Yankees",
+      "Oakland Athletics",
+      "Philadelphia Phillies",
+      "Pittsburgh Pirates",
+      "San Diego Padres",
+      "San Francisco Giants",
+      "Seattle Mariners",
+      "St. Louis Cardinals",
+      "Tampa Bay Rays",
+      "Texas Rangers",
+      "Toronto Blue Jays",
+      "Washington Nationals"
+    ];
+
+    // Empty players array - add your prospects here
+    const players = [];
+
+    // State to track picks
+    let draftPicks = [];
+
+    // Initialize dropdowns
+    const teamSelect = document.getElementById('teamSelect');
+    const playerSelect = document.getElementById('playerSelect');
+    const draftPicksList = document.getElementById('draftPicksList');
+    const draftButton = document.getElementById('draftButton');
+
+    function populateSelect(selectElement, items) {
+      selectElement.innerHTML = '';
+      if (items.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'No options available';
+        option.disabled = true;
+        option.selected = true;
+        selectElement.appendChild(option);
+        return;
+      }
+      items.forEach((item, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = item;
+        selectElement.appendChild(option);
+      });
+    }
+
+    // Populate teams and players on load
+    populateSelect(teamSelect, teams);
+    populateSelect(playerSelect, players);
+
+    // Handle draft pick
+    draftButton.addEventListener('click', () => {
+      const teamIndex = teamSelect.value;
+      const playerIndex = playerSelect.value;
+
+      if (playerIndex === '' || teamIndex === '') {
+        alert('Please select both a team and a player.');
+        return;
+      }
+
+      const team = teams[teamIndex];
+      const player = players[playerIndex];
+
+      // Check if player already drafted
+      if (draftPicks.some(pick => pick.player === player)) {
+        alert('This player has already been drafted.');
+        return;
+      }
+
+      // Record the pick
+      draftPicks.push({ team, player });
+
+      // Remove drafted player from players list
+      players.splice(playerIndex, 1);
+      populateSelect(playerSelect, players);
+
+      // Update draft picks display
+      updateDraftPicksDisplay();
+
+      // If no players left
+      if (players.length === 0) {
+        draftButton.disabled = true;
+        alert('All players have been drafted!');
+      }
+    });
+
+    function updateDraftPicksDisplay() {
+      if (draftPicks.length === 0) {
+        draftPicksList.innerHTML = '<p>No picks made yet.</p>';
+        return;
+      }
+
+      draftPicksList.innerHTML = '';
+      draftPicks.forEach((pick, index) => {
+        const div = document.createElement('div');
+        div.classList.add('draft-pick');
+        div.textContent = `Pick ${index + 1}: ${pick.team} selected ${pick.player}`;
+        draftPicksList.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
