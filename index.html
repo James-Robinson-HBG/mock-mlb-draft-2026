@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Color Logos</title>
+<title>Baseball Draft Simulator 2026 - Auto Advance Pick</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%;
@@ -143,11 +143,6 @@
     min-width: 30px;
     text-align: right;
   }
-  .pick-logo {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-  }
   .pick-details {
     flex-grow: 1;
     display: flex;
@@ -167,6 +162,7 @@
     font-style: italic;
     font-size: 0.9rem;
     color: #003366;
+    margin-left: 10px;
   }
 
   /* Scrollbar styling */
@@ -179,14 +175,6 @@
   }
   .draft-picks::-webkit-scrollbar-track {
     background: transparent;
-  }
-
-  /* Custom dropdown options with logos */
-  select option {
-    padding-left: 40px;
-    background-repeat: no-repeat;
-    background-position: 10px center;
-    background-size: 24px 24px;
   }
 </style>
 </head>
@@ -272,39 +260,6 @@
     "Right Field": "RF",
   };
 
-  const teamLogos = {
-    "Arizona Diamondbacks": "https://upload.wikimedia.org/wikipedia/en/0/0e/Arizona_Diamondbacks_logo.svg",
-    "Atlanta Braves": "https://upload.wikimedia.org/wikipedia/en/2/25/Atlanta_Braves.svg",
-    "Baltimore Orioles": "https://upload.wikimedia.org/wikipedia/en/7/76/Baltimore_Orioles_logo.svg",
-    "Boston Red Sox": "https://upload.wikimedia.org/wikipedia/en/6/6d/RedSoxPrimary_HangingSocks.svg",
-    "Chicago Cubs": "https://upload.wikimedia.org/wikipedia/en/8/80/Chicago_Cubs_Logo.svg",
-    "Chicago White Sox": "https://upload.wikimedia.org/wikipedia/en/0/0c/Chicago_White_Sox_logo.svg",
-    "Cincinnati Reds": "https://upload.wikimedia.org/wikipedia/commons/0/01/Cincinnati_Reds_Logo.svg",
-    "Cleveland Guardians": "https://upload.wikimedia.org/wikipedia/en/4/4b/Cleveland_Guardians_logo.svg",
-    "Colorado Rockies": "https://upload.wikimedia.org/wikipedia/en/2/28/Colorado_Rockies_logo.svg",
-    "Detroit Tigers": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Detroit_Tigers_logo.svg",
-    "Houston Astros": "https://upload.wikimedia.org/wikipedia/en/c/c7/Houston_Astros_logo.svg",
-    "Kansas City Royals": "https://upload.wikimedia.org/wikipedia/en/9/9d/Kansas_City_Royals_Insignia.svg",
-    "Los Angeles Angels": "https://upload.wikimedia.org/wikipedia/en/7/7e/Los_Angeles_Angels_logo.svg",
-    "Los Angeles Dodgers": "https://upload.wikimedia.org/wikipedia/en/0/09/Los_Angeles_Dodgers_Logo.svg",
-    "Miami Marlins": "https://upload.wikimedia.org/wikipedia/en/f/fd/Miami_Marlins_logo.svg",
-    "Milwaukee Brewers": "https://upload.wikimedia.org/wikipedia/en/2/29/Milwaukee_Brewers_logo.svg",
-    "Minnesota Twins": "https://upload.wikimedia.org/wikipedia/en/2/2e/Minnesota_Twins_logo.svg",
-    "New York Mets": "https://upload.wikimedia.org/wikipedia/en/7/7b/New_York_Mets_logo.svg",
-    "New York Yankees": "https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Yankees_logo.svg",
-    "Oakland Athletics": "https://upload.wikimedia.org/wikipedia/en/6/6b/Oakland_A%27s_logo.svg",
-    "Philadelphia Phillies": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Philadelphia_Phillies_logo.svg",
-    "Pittsburgh Pirates": "https://upload.wikimedia.org/wikipedia/en/2/2a/Pittsburgh_Pirates_logo.svg",
-    "San Diego Padres": "https://upload.wikimedia.org/wikipedia/en/0/0c/San_Diego_Padres_logo.svg",
-    "San Francisco Giants": "https://upload.wikimedia.org/wikipedia/en/5/58/San_Francisco_Giants_Logo.svg",
-    "Seattle Mariners": "https://upload.wikimedia.org/wikipedia/en/8/8e/Seattle_Mariners_logo.svg",
-    "St. Louis Cardinals": "https://upload.wikimedia.org/wikipedia/en/6/6b/St._Louis_Cardinals_logo.svg",
-    "Tampa Bay Rays": "https://upload.wikimedia.org/wikipedia/en/c/c9/Tampa_Bay_Rays_logo.svg",
-    "Texas Rangers": "https://upload.wikimedia.org/wikipedia/en/4/43/Texas_Rangers_logo.svg",
-    "Toronto Blue Jays": "https://upload.wikimedia.org/wikipedia/en/0/0b/Toronto_Blue_Jays_logo.svg",
-    "Washington Nationals": "https://upload.wikimedia.org/wikipedia/en/1/1b/Washington_Nationals_logo.svg"
-  };
-
   let players = [
     {
       name: "John Doe",
@@ -347,7 +302,7 @@
   const draftPicksList = document.getElementById('draftPicksList');
   const draftButton = document.getElementById('draftButton');
 
-  // Populate team select with unique teams in draft order, with logos
+  // Populate team select with unique teams in draft order
   function populateTeamSelect() {
     teamSelect.innerHTML = '';
     const uniqueTeams = [];
@@ -362,7 +317,6 @@
     });
   }
 
-  // Custom rendering of player select without logos (native select doesn't support images well)
   function populatePlayerSelect() {
     playerSelect.innerHTML = '';
     if (players.length === 0) {
@@ -396,12 +350,6 @@
       pickNumSpan.className = 'pick-number';
       pickNumSpan.textContent = pick;
 
-      const logoImg = document.createElement('img');
-      logoImg.className = 'pick-logo';
-      logoImg.src = teamLogos[team] || '';
-      logoImg.alt = `${team} logo`;
-      logoImg.loading = 'lazy';
-
       const detailsSpan = document.createElement('span');
       detailsSpan.className = 'pick-details';
 
@@ -422,7 +370,6 @@
       detailsSpan.appendChild(positionSpan);
 
       div.appendChild(pickNumSpan);
-      div.appendChild(logoImg);
       div.appendChild(detailsSpan);
 
       draftPicksList.appendChild(div);
@@ -433,6 +380,19 @@
   function removeDraftedPlayer(playerName) {
     players = players.filter(p => p.name !== playerName);
     populatePlayerSelect();
+  }
+
+  // Advance team select to next pick's team
+  function advanceToNextTeam() {
+    const draftedPickNumbers = draftPicks.map(p => p.pick);
+    // Find next pick number not drafted yet
+    const nextPick = draftOrder.find(d => !draftedPickNumbers.includes(d.pick));
+    if (nextPick) {
+      teamSelect.value = nextPick.team;
+    } else {
+      // No picks left
+      teamSelect.value = '';
+    }
   }
 
   draftButton.addEventListener('click', () => {
@@ -462,12 +422,16 @@
 
     // Remove drafted player from dropdown
     removeDraftedPlayer(player.name);
+
+    // Auto advance to next team's pick
+    advanceToNextTeam();
   });
 
-  // Initialize selects and display
+  // Initialize
   populateTeamSelect();
   populatePlayerSelect();
   updateDraftPicksDisplay();
+  advanceToNextTeam();
 </script>
 </body>
 </html>
