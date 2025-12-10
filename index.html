@@ -11,30 +11,31 @@
       margin: 0;
       padding: 20px;
       color: #333;
-      display: flex;
-      justify-content: center;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     header {
       text-align: center;
       margin-bottom: 20px;
       width: 100%;
+      max-width: 900px;
     }
     h1 {
       color: #005a9c;
+      margin: 0;
     }
-    .main-wrapper {
-      display: flex;
-      max-width: 900px;
-      width: 100%;
-      gap: 20px;
-    }
+
+    /* Container for draft controls */
     .container {
-      flex: 1;
+      max-width: 600px;
+      width: 100%;
       background: white;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
     label {
       display: block;
@@ -107,85 +108,99 @@
       position: absolute;
       right: 15px;
       top: 10px;
+      background: none;
+      border: none;
     }
     .close-button:hover {
       color: #000;
     }
 
-    /* Sidebar styles for logos */
-    .logo-sidebar {
-      width: 150px;
+    /* Teams grid below header */
+    .teams-grid {
+      max-width: 900px;
+      width: 100%;
       background: white;
-      padding: 10px 15px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      overflow-y: auto;
-      max-height: 80vh;
+      padding: 15px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 15px;
+      margin-bottom: 40px;
     }
-    .logo-sidebar h3 {
-      text-align: center;
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: #005a9c;
-    }
-    .team-logo {
+    .team-item {
       display: flex;
       align-items: center;
-      margin-bottom: 12px;
-      cursor: default;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background-color: #f9faff;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .team-item.active {
+      background-color: #d0e8ff;
+    }
+    .team-logo {
+      height: 30px;
+      width: 30px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: white;
+      box-shadow: 0 0 3px rgba(0,0,0,0.1);
       filter: grayscale(100%);
       opacity: 0.5;
       transition: filter 0.3s ease, opacity 0.3s ease;
     }
-    .team-logo img {
-      height: 30px;
-      width: 30px;
-      object-fit: contain;
-      margin-right: 10px;
-      border-radius: 4px;
-      background: white;
-      padding: 2px;
-      box-shadow: 0 0 3px rgba(0,0,0,0.1);
-    }
-    .team-logo.active {
+    .team-item.active .team-logo {
       filter: none;
       opacity: 1;
-      cursor: pointer;
     }
-    .team-logo span {
+    .team-name {
       font-size: 0.9em;
       color: #333;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .picked-label {
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #005a9c;
+      background: #cce4ff;
+      padding: 2px 6px;
+      border-radius: 12px;
       user-select: none;
     }
   </style>
 </head>
 <body>
-  <header style="width: 100%;">
-    <h1>Baseball Draft Simulator 2026</h1> 
+  <header>
+    <h1>Baseball Draft Simulator 2026</h1>
   </header>
 
-  <div class="main-wrapper">
-    <div class="container">
-      <label for="teamSelect">Select Team:</label>
-      <select id="teamSelect"></select>
+  <!-- Teams grid below header -->
+  <section class="teams-grid" aria-label="MLB Teams and Draft Status" id="teamsGrid">
+    <!-- Teams will be dynamically inserted here -->
+  </section>
 
-      <label for="playerSelect">Select Player:</label>
-      <select id="playerSelect"></select>
+  <!-- Main draft controls -->
+  <div class="container">
+    <label for="teamSelect">Select Team:</label>
+    <select id="teamSelect"></select>
 
-      <button id="draftButton">Make Draft Pick</button>
+    <label for="playerSelect">Select Player:</label>
+    <select id="playerSelect"></select>
 
-      <div class="draft-picks" id="draftPicksContainer">
-        <h2>Draft Picks So Far</h2>
-        <div id="draftPicksList">
-          <p>No picks made yet.</p>
-        </div>
+    <button id="draftButton">Make Draft Pick</button>
+
+    <div class="draft-picks" id="draftPicksContainer">
+      <h2>Draft Picks So Far</h2>
+      <div id="draftPicksList">
+        <p>No picks made yet.</p>
       </div>
     </div>
-
-    <aside class="logo-sidebar" aria-label="MLB Teams Logos">
-      <h3>MLB Teams</h3>
-      <div id="teamLogosList"></div>
-    </aside>
   </div>
 
   <!-- Modal for player profile -->
@@ -202,7 +217,7 @@
   </div>
 
   <script>
-    // List of 30 MLB teams
+    // MLB teams list
     const teams = [
       "Arizona Diamondbacks",
       "Atlanta Braves",
@@ -236,9 +251,7 @@
       "Washington Nationals"
     ];
 
-    // Corresponding team logo URLs (official or reliable sources)
-    // These URLs come from public MLB team logos hosted on Wikimedia or official sources.
-    // You can replace these URLs with your own hosted images if you prefer.
+    // Logos URLs (same as before)
     const teamLogos = {
       "Arizona Diamondbacks": "https://upload.wikimedia.org/wikipedia/en/0/0e/Arizona_Diamondbacks_logo.svg",
       "Atlanta Braves": "https://upload.wikimedia.org/wikipedia/en/2/25/Atlanta_Braves.svg",
@@ -272,7 +285,7 @@
       "Washington Nationals": "https://upload.wikimedia.org/wikipedia/en/1/1b/Washington_Nationals_logo.svg"
     };
 
-    // Players array with example players
+    // Example players
     const players = [
       {
         name: "John Doe",
@@ -306,10 +319,8 @@
         throwingHand: "Right",
         hittingHand: "Left"
       }
-      // Add more players here if desired
     ];
 
-    // State to track picks
     let draftPicks = [];
 
     // DOM elements
@@ -317,7 +328,7 @@
     const playerSelect = document.getElementById('playerSelect');
     const draftPicksList = document.getElementById('draftPicksList');
     const draftButton = document.getElementById('draftButton');
-    const teamLogosList = document.getElementById('teamLogosList');
+    const teamsGrid = document.getElementById('teamsGrid');
 
     // Modal elements
     const playerModal = document.getElementById('playerModal');
@@ -348,38 +359,49 @@
       });
     }
 
-    // Render team logos sidebar
-    function renderTeamLogos() {
-      teamLogosList.innerHTML = '';
+    // Render teams grid below header
+    function renderTeamsGrid() {
+      teamsGrid.innerHTML = '';
       teams.forEach(team => {
         const div = document.createElement('div');
-        div.className = 'team-logo';
+        div.className = 'team-item';
         div.setAttribute('data-team', team);
         div.title = team;
 
         const img = document.createElement('img');
+        img.className = 'team-logo';
         img.src = teamLogos[team] || '';
         img.alt = `${team} logo`;
 
         const span = document.createElement('span');
+        span.className = 'team-name';
         span.textContent = team;
+
+        const pickedLabel = document.createElement('span');
+        pickedLabel.className = 'picked-label';
+        pickedLabel.textContent = 'Picked';
+        pickedLabel.style.display = 'none';
 
         div.appendChild(img);
         div.appendChild(span);
-        teamLogosList.appendChild(div);
+        div.appendChild(pickedLabel);
+
+        teamsGrid.appendChild(div);
       });
     }
 
-    // Update logos to highlight teams that have drafted
-    function updateTeamLogos() {
-      const logoDivs = teamLogosList.querySelectorAll('.team-logo');
-      logoDivs.forEach(div => {
-        const teamName = div.getAttribute('data-team');
-        const hasPicked = draftPicks.some(pick => pick.team === teamName);
+    // Update grid to reflect picks
+    function updateTeamsGrid() {
+      const teamItems = teamsGrid.querySelectorAll('.team-item');
+      teamItems.forEach(item => {
+        const teamName = item.getAttribute('data-team');
+        const hasPicked = draftPicks.some(p => p.team === teamName);
         if (hasPicked) {
-          div.classList.add('active');
+          item.classList.add('active');
+          item.querySelector('.picked-label').style.display = 'inline-block';
         } else {
-          div.classList.remove('active');
+          item.classList.remove('active');
+          item.querySelector('.picked-label').style.display = 'none';
         }
       });
     }
@@ -431,7 +453,6 @@
       const team = teams[teamIndex];
       const player = players[playerIndex];
 
-      // Prevent drafting the same player twice
       if (draftPicks.some(pick => pick.player.name === player.name)) {
         alert('This player has already been drafted.');
         return;
@@ -439,7 +460,7 @@
 
       draftPicks.push({ team, player });
       updateDraftPicksDisplay();
-      updateTeamLogos();
+      updateTeamsGrid();
     });
 
     modalClose.addEventListener('click', closePlayerModal);
@@ -452,9 +473,9 @@
     // Initialize
     populateSelect(teamSelect, teams);
     populateSelect(playerSelect, players);
-    renderTeamLogos();
+    renderTeamsGrid();
     updateDraftPicksDisplay();
-    updateTeamLogos();
+    updateTeamsGrid();
   </script>
 </body>
 </html>
