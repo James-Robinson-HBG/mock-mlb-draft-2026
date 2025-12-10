@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Auto Advance Pick</title>
+<title>Baseball Draft Simulator 2026 - Scrollable Picks Panel</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%;
@@ -37,7 +37,7 @@
   .main-wrapper {
     display: flex;
     width: 100vw;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 80px); /* Full viewport height minus header */
     box-sizing: border-box;
   }
   @media (max-width: 900px) {
@@ -110,20 +110,42 @@
     cursor: not-allowed;
   }
 
-  /* Draft picks list */
-  .draft-picks {
-    margin-top: 40px;
-    flex-grow: 1;
-    overflow-y: auto;
-    border-top: 2px solid #ddd;
-    padding-top: 24px;
+  /* Right panel: picks list */
+  .teams-panel {
+    flex: 0 0 60%;
+    background: #fff;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+    padding: 25px 40px 35px 40px;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
   }
-  .draft-picks h2 {
+  @media (max-width: 900px) {
+    .teams-panel {
+      flex: none;
+      border-radius: 0 0 12px 12px;
+      height: auto;
+      padding: 20px 25px;
+    }
+  }
+
+  .teams-panel h2 {
     font-size: 1.4rem;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     font-weight: 800;
     color: #003366;
+    user-select: none;
+    text-align: center;
+    flex-shrink: 0;
   }
+
+  .draft-picks {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
   .draft-pick {
     background: #e8f0ff;
     padding: 14px 18px;
@@ -200,6 +222,11 @@
       </div>
     </div>
   </section>
+
+  <aside class="teams-panel" aria-label="Draft Picks List">
+    <h2>Draft Picks Order</h2>
+    <div class="draft-picks" id="draftPicksList"></div>
+  </aside>
 </div>
 
 <script>
@@ -427,7 +454,7 @@
     advanceToNextTeam();
   });
 
-  // Initialize
+  // Initialize selects and display
   populateTeamSelect();
   populatePlayerSelect();
   updateDraftPicksDisplay();
