@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Enhanced Player Info</title>
+<title>Baseball Draft Simulator 2026 - Multiple Picks</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%;
@@ -47,7 +47,7 @@
     }
   }
 
-  /* Left panel: 40% width */
+  /* Left panel: draft controls and picks */
   .draft-panel {
     flex: 0 0 40%;
     background: #fff;
@@ -69,7 +69,7 @@
     }
   }
 
-  /* Right panel: 60% width */
+  /* Right panel: picks list */
   .teams-panel {
     flex: 0 0 60%;
     background: #fff;
@@ -152,86 +152,44 @@
     font-size: 1.1rem;
     user-select: none;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-  }
-
-  /* Team list styling */
-  .teams-panel h2 {
-    font-size: 1.4rem;
-    margin-bottom: 24px;
-    font-weight: 800;
-    color: #003366;
-    user-select: none;
-    text-align: center;
-  }
-  .team-list {
     display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .team-row {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    cursor: default;
-    padding: 16px 12px;
-    border-radius: 8px;
-    user-select: none;
-    transition: background-color 0.2s ease;
-    min-height: 70px;
-  }
-  .team-row.active {
-    background-color: #d9e8ff;
-  }
-  .team-row:hover {
-    background-color: #f0f5ff;
-  }
-  .team-info {
-    display: flex;
     align-items: center;
-    gap: 14px;
   }
-  .logo-placeholder {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #bbb;
-    color: white;
-    font-weight: 700;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    text-transform: uppercase;
-  }
-  .team-name {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #222;
-  }
-  .player-info {
-    text-align: right;
-    font-weight: 700;
-    font-size: 1.2rem;
+  .pick-number {
+    font-weight: 900;
     color: #005a9c;
-    min-width: 160px;
+    margin-right: 20px;
+    min-width: 30px;
+    text-align: right;
   }
-  .player-position {
-    font-size: 1rem;
+  .pick-details {
+    flex-grow: 1;
+  }
+  .pick-team {
+    font-weight: 800;
+    margin-right: 15px;
+  }
+  .pick-player {
+    font-weight: 600;
     color: #004a80;
-    font-weight: 700;
-    margin-top: 4px;
+  }
+  .pick-position {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #003366;
+    margin-left: 10px;
   }
 
-  /* Scrollbar styling for teams panel */
-  .teams-panel::-webkit-scrollbar {
+  /* Scrollbar styling */
+  .draft-picks::-webkit-scrollbar {
     width: 8px;
   }
-  .teams-panel::-webkit-scrollbar-thumb {
+  .draft-picks::-webkit-scrollbar-thumb {
     background-color: #a0b9d6;
     border-radius: 4px;
   }
-  .teams-panel::-webkit-scrollbar-track {
+  .draft-picks::-webkit-scrollbar-track {
     background: transparent;
   }
 </style>
@@ -259,45 +217,48 @@
     </div>
   </section>
 
-  <aside class="teams-panel" aria-label="MLB Teams and Draft Status">
-    <h2>MLB Teams</h2>
-    <div class="team-list" id="teamsList"></div>
+  <aside class="teams-panel" aria-label="Draft Picks List">
+    <h2>Draft Picks Order</h2>
+    <div class="draft-picks" id="draftPicksList"></div>
   </aside>
 </div>
 
 <script>
-  const teams = [
-    "Arizona Diamondbacks",
-    "Atlanta Braves",
-    "Baltimore Orioles",
-    "Boston Red Sox",
-    "Chicago Cubs",
-    "Chicago White Sox",
-    "Cincinnati Reds",
-    "Cleveland Guardians",
-    "Colorado Rockies",
-    "Detroit Tigers",
-    "Houston Astros",
-    "Kansas City Royals",
-    "Los Angeles Angels",
-    "Los Angeles Dodgers",
-    "Miami Marlins",
-    "Milwaukee Brewers",
-    "Minnesota Twins",
-    "New York Mets",
-    "New York Yankees",
-    "Oakland Athletics",
-    "Philadelphia Phillies",
-    "Pittsburgh Pirates",
-    "San Diego Padres",
-    "San Francisco Giants",
-    "Seattle Mariners",
-    "St. Louis Cardinals",
-    "Tampa Bay Rays",
-    "Texas Rangers",
-    "Toronto Blue Jays",
-    "Washington Nationals"
+  // Draft order array with multiple picks per team, each with a unique pick number
+  const draftOrder = [
+    { pick: 1, team: "Chicago White Sox" },
+    { pick: 2, team: "Minnesota Twins" },
+    { pick: 3, team: "Pittsburgh Pirates" },
+    { pick: 4, team: "Baltimore Orioles" },
+    { pick: 5, team: "Oakland Athletics" },
+    { pick: 6, team: "Atlanta Braves" },
+    { pick: 7, team: "Tampa Bay Rays" },
+    { pick: 8, team: "St. Louis Cardinals" },
+    { pick: 9, team: "Miami Marlins" },
+    { pick: 10, team: "Arizona Diamondbacks" },
+    { pick: 11, team: "Texas Rangers" },
+    { pick: 12, team: "San Francisco Giants" },
+    { pick: 13, team: "Kansas City Royals" },
+    { pick: 14, team: "Cleveland Guardians" },
+    { pick: 15, team: "Boston Red Sox" },
+    { pick: 16, team: "Colorado Rockies" },
+    { pick: 17, team: "Washington Nationals" },
+    { pick: 18, team: "Los Angeles Angels" },
+    { pick: 19, team: "Cincinnati Reds" },
+    { pick: 20, team: "Cleveland Guardians" }, // Comp Balance A
+    { pick: 21, team: "Boston Red Sox" },      // Second pick
+    { pick: 22, team: "San Diego Padres" },
+    { pick: 23, team: "Detroit Tigers" },
+    { pick: 24, team: "Chicago Cubs" },
+    { pick: 25, team: "Seattle Mariners" },
+    { pick: 26, team: "Milwaukee Brewers" },
+    { pick: 27, team: "Atlanta Braves" },      // Prospect Promo Incentive
+    { pick: 28, team: "New York Mets" },       // Penalty pick
+    { pick: 29, team: "Houston Astros" },      // Prospect Promo Incentive
+    { pick: 30, team: "Cleveland Guardians" } // Comp Balance A
   ];
+
+  const teamsSet = new Set(draftOrder.map(d => d.team));
 
   // Position abbreviations map
   const positionAbbreviations = {
@@ -312,7 +273,6 @@
     "Center Field": "CF",
     "Left Field": "LF",
     "Right Field": "RF",
-    // Add more as needed
   };
 
   let players = [
@@ -350,84 +310,42 @@
     }
   ];
 
-  let draftPicks = [];
+  let draftPicks = []; // Will store {pick, team, player}
 
   const teamSelect = document.getElementById('teamSelect');
   const playerSelect = document.getElementById('playerSelect');
   const draftPicksList = document.getElementById('draftPicksList');
   const draftButton = document.getElementById('draftButton');
-  const teamsList = document.getElementById('teamsList');
 
-  function populateSelect(selectElement, items) {
-    selectElement.innerHTML = '';
-    if (items.length === 0) {
+  // Populate team select with unique teams in draft order
+  function populateTeamSelect() {
+    teamSelect.innerHTML = '';
+    draftOrder.forEach(({team}, index) => {
+      // Add team only once
+      if (!Array.from(teamSelect.options).some(opt => opt.text === team)) {
+        const option = document.createElement('option');
+        option.value = team;
+        option.textContent = team;
+        teamSelect.appendChild(option);
+      }
+    });
+  }
+
+  function populatePlayerSelect() {
+    playerSelect.innerHTML = '';
+    if (players.length === 0) {
       const option = document.createElement('option');
       option.textContent = 'No players available';
       option.disabled = true;
       option.selected = true;
-      selectElement.appendChild(option);
+      playerSelect.appendChild(option);
       return;
     }
-    items.forEach((item, index) => {
+    players.forEach((player, index) => {
       const option = document.createElement('option');
       option.value = index;
-      option.textContent = typeof item === 'string' ? item : item.name;
-      selectElement.appendChild(option);
-    });
-  }
-
-  function getInitials(name) {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  }
-
-  function renderTeamsList() {
-    teamsList.innerHTML = '';
-    teams.forEach(team => {
-      const row = document.createElement('div');
-      row.className = 'team-row';
-      row.setAttribute('data-team', team);
-
-      const left = document.createElement('div');
-      left.className = 'team-info';
-
-      const logoPlaceholder = document.createElement('div');
-      logoPlaceholder.className = 'logo-placeholder';
-      logoPlaceholder.textContent = getInitials(team);
-
-      const teamName = document.createElement('span');
-      teamName.className = 'team-name';
-      teamName.textContent = team;
-
-      left.appendChild(logoPlaceholder);
-      left.appendChild(teamName);
-
-      const right = document.createElement('div');
-      right.className = 'player-info';
-
-      row.appendChild(left);
-      row.appendChild(right);
-
-      teamsList.appendChild(row);
-    });
-  }
-
-  function updateTeamsList() {
-    const rows = teamsList.querySelectorAll('.team-row');
-    rows.forEach(row => {
-      const teamName = row.getAttribute('data-team');
-      const pick = draftPicks.find(p => p.team === teamName);
-      const playerInfo = row.querySelector('.player-info');
-      if (pick) {
-        row.classList.add('active');
-        const posAbbr = positionAbbreviations[pick.player.position] || pick.player.position;
-        playerInfo.innerHTML = `
-          <div>${pick.player.name}</div>
-          <div class="player-position">${posAbbr}</div>
-        `;
-      } else {
-        row.classList.remove('active');
-        playerInfo.innerHTML = '';
-      }
+      option.textContent = player.name;
+      playerSelect.appendChild(option);
     });
   }
 
@@ -437,10 +355,38 @@
       draftPicksList.innerHTML = '<p>No picks made yet.</p>';
       return;
     }
-    draftPicks.forEach(pick => {
+    // Sort picks by pick number
+    draftPicks.sort((a,b) => a.pick - b.pick);
+    draftPicks.forEach(({pick, team, player}) => {
       const div = document.createElement('div');
       div.className = 'draft-pick';
-      div.textContent = `${pick.team} selected ${pick.player.name}`;
+
+      const pickNumSpan = document.createElement('span');
+      pickNumSpan.className = 'pick-number';
+      pickNumSpan.textContent = pick;
+
+      const detailsSpan = document.createElement('span');
+      detailsSpan.className = 'pick-details';
+
+      const teamSpan = document.createElement('span');
+      teamSpan.className = 'pick-team';
+      teamSpan.textContent = team;
+
+      const playerSpan = document.createElement('span');
+      playerSpan.className = 'pick-player';
+      playerSpan.textContent = player.name;
+
+      const positionSpan = document.createElement('span');
+      positionSpan.className = 'pick-position';
+      positionSpan.textContent = positionAbbreviations[player.position] || player.position;
+
+      detailsSpan.appendChild(teamSpan);
+      detailsSpan.appendChild(playerSpan);
+      detailsSpan.appendChild(positionSpan);
+
+      div.appendChild(pickNumSpan);
+      div.appendChild(detailsSpan);
+
       draftPicksList.appendChild(div);
     });
   }
@@ -448,41 +394,42 @@
   // Remove drafted player from players array and update dropdown
   function removeDraftedPlayer(playerName) {
     players = players.filter(p => p.name !== playerName);
-    populateSelect(playerSelect, players);
+    populatePlayerSelect();
   }
 
   draftButton.addEventListener('click', () => {
-    const teamIndex = teamSelect.value;
+    const selectedTeam = teamSelect.value;
     const playerIndex = playerSelect.value;
 
-    if (teamIndex === '' || playerIndex === '') {
+    if (!selectedTeam || playerIndex === '') {
       alert('Please select both a team and a player before drafting.');
       return;
     }
 
-    const team = teams[teamIndex];
     const player = players[playerIndex];
 
-    // Prevent drafting the same player twice
-    if (draftPicks.some(pick => pick.player.name === player.name)) {
-      alert('This player has already been drafted.');
+    // Find next available pick number for this team
+    const takenPicks = draftPicks.filter(p => p.team === selectedTeam).map(p => p.pick);
+    const teamPicksInOrder = draftOrder.filter(d => d.team === selectedTeam).map(d => d.pick);
+
+    // Find first pick number for this team not taken yet
+    const nextPickNum = teamPicksInOrder.find(pickNum => !takenPicks.includes(pickNum));
+    if (!nextPickNum) {
+      alert(`${selectedTeam} has no remaining picks.`);
       return;
     }
 
-    draftPicks.push({ team, player });
+    draftPicks.push({ pick: nextPickNum, team: selectedTeam, player });
     updateDraftPicksDisplay();
-    updateTeamsList();
 
     // Remove drafted player from dropdown
     removeDraftedPlayer(player.name);
   });
 
-  // Initialize
-  populateSelect(teamSelect, teams);
-  populateSelect(playerSelect, players);
-  renderTeamsList();
+  // Initialize selects
+  populateTeamSelect();
+  populatePlayerSelect();
   updateDraftPicksDisplay();
-  updateTeamsList();
 </script>
 </body>
 </html>
