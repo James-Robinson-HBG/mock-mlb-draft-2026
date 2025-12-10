@@ -11,17 +11,26 @@
       margin: 0;
       padding: 20px;
       color: #333;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
     }
     header {
       text-align: center;
       margin-bottom: 20px;
+      width: 100%;
     }
     h1 {
       color: #005a9c;
     }
+    .main-wrapper {
+      display: flex;
+      max-width: 900px;
+      width: 100%;
+      gap: 20px;
+    }
     .container {
-      max-width: 600px;
-      margin: 0 auto;
+      flex: 1;
       background: white;
       padding: 20px;
       border-radius: 8px;
@@ -102,34 +111,87 @@
     .close-button:hover {
       color: #000;
     }
+
+    /* Sidebar styles for logos */
+    .logo-sidebar {
+      width: 150px;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+    .logo-sidebar h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #005a9c;
+    }
+    .team-logo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      cursor: default;
+      filter: grayscale(100%);
+      opacity: 0.5;
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+    .team-logo img {
+      height: 30px;
+      width: 30px;
+      object-fit: contain;
+      margin-right: 10px;
+      border-radius: 4px;
+      background: white;
+      padding: 2px;
+      box-shadow: 0 0 3px rgba(0,0,0,0.1);
+    }
+    .team-logo.active {
+      filter: none;
+      opacity: 1;
+      cursor: pointer;
+    }
+    .team-logo span {
+      font-size: 0.9em;
+      color: #333;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
-  <header>
+  <header style="width: 100%;">
     <h1>Baseball Draft Simulator 2026</h1> 
   </header>
 
-  <div class="container">
-    <label for="teamSelect">Select Team:</label>
-    <select id="teamSelect"></select>
+  <div class="main-wrapper">
+    <div class="container">
+      <label for="teamSelect">Select Team:</label>
+      <select id="teamSelect"></select>
 
-    <label for="playerSelect">Select Player:</label>
-    <select id="playerSelect"></select>
+      <label for="playerSelect">Select Player:</label>
+      <select id="playerSelect"></select>
 
-    <button id="draftButton">Make Draft Pick</button>
+      <button id="draftButton">Make Draft Pick</button>
 
-    <div class="draft-picks" id="draftPicksContainer">
-      <h2>Draft Picks So Far</h2>
-      <div id="draftPicksList">
-        <p>No picks made yet.</p>
+      <div class="draft-picks" id="draftPicksContainer">
+        <h2>Draft Picks So Far</h2>
+        <div id="draftPicksList">
+          <p>No picks made yet.</p>
+        </div>
       </div>
     </div>
+
+    <aside class="logo-sidebar" aria-label="MLB Teams Logos">
+      <h3>MLB Teams</h3>
+      <div id="teamLogosList"></div>
+    </aside>
   </div>
 
   <!-- Modal for player profile -->
-  <div id="playerModal" class="modal">
+  <div id="playerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPlayerName">
     <div class="modal-content">
-      <span class="close-button" id="modalClose">&times;</span>
+      <button class="close-button" id="modalClose" aria-label="Close player profile">&times;</button>
       <h2 id="modalPlayerName"></h2>
       <p><strong>Date of Birth:</strong> <span id="modalPlayerDOB"></span></p>
       <p><strong>Position:</strong> <span id="modalPlayerPosition"></span></p>
@@ -140,7 +202,7 @@
   </div>
 
   <script>
-    // Complete list of 30 MLB teams
+    // List of 30 MLB teams
     const teams = [
       "Arizona Diamondbacks",
       "Atlanta Braves",
@@ -174,27 +236,88 @@
       "Washington Nationals"
     ];
 
-    // Players array with one player added: John Doe
+    // Corresponding team logo URLs (official or reliable sources)
+    // These URLs come from public MLB team logos hosted on Wikimedia or official sources.
+    // You can replace these URLs with your own hosted images if you prefer.
+    const teamLogos = {
+      "Arizona Diamondbacks": "https://upload.wikimedia.org/wikipedia/en/0/0e/Arizona_Diamondbacks_logo.svg",
+      "Atlanta Braves": "https://upload.wikimedia.org/wikipedia/en/2/25/Atlanta_Braves.svg",
+      "Baltimore Orioles": "https://upload.wikimedia.org/wikipedia/en/7/76/Baltimore_Orioles_logo.svg",
+      "Boston Red Sox": "https://upload.wikimedia.org/wikipedia/en/6/6d/RedSoxPrimary_HangingSocks.svg",
+      "Chicago Cubs": "https://upload.wikimedia.org/wikipedia/en/8/80/Chicago_Cubs_Logo.svg",
+      "Chicago White Sox": "https://upload.wikimedia.org/wikipedia/en/0/0c/Chicago_White_Sox_logo.svg",
+      "Cincinnati Reds": "https://upload.wikimedia.org/wikipedia/commons/0/01/Cincinnati_Reds_Logo.svg",
+      "Cleveland Guardians": "https://upload.wikimedia.org/wikipedia/en/4/4b/Cleveland_Guardians_logo.svg",
+      "Colorado Rockies": "https://upload.wikimedia.org/wikipedia/en/2/28/Colorado_Rockies_logo.svg",
+      "Detroit Tigers": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Detroit_Tigers_logo.svg",
+      "Houston Astros": "https://upload.wikimedia.org/wikipedia/en/c/c7/Houston_Astros_logo.svg",
+      "Kansas City Royals": "https://upload.wikimedia.org/wikipedia/en/9/9d/Kansas_City_Royals_Insignia.svg",
+      "Los Angeles Angels": "https://upload.wikimedia.org/wikipedia/en/7/7e/Los_Angeles_Angels_logo.svg",
+      "Los Angeles Dodgers": "https://upload.wikimedia.org/wikipedia/en/0/09/Los_Angeles_Dodgers_Logo.svg",
+      "Miami Marlins": "https://upload.wikimedia.org/wikipedia/en/f/fd/Miami_Marlins_logo.svg",
+      "Milwaukee Brewers": "https://upload.wikimedia.org/wikipedia/en/2/29/Milwaukee_Brewers_logo.svg",
+      "Minnesota Twins": "https://upload.wikimedia.org/wikipedia/en/2/2e/Minnesota_Twins_logo.svg",
+      "New York Mets": "https://upload.wikimedia.org/wikipedia/en/7/7b/New_York_Mets_logo.svg",
+      "New York Yankees": "https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Yankees_logo.svg",
+      "Oakland Athletics": "https://upload.wikimedia.org/wikipedia/en/6/6b/Oakland_A%27s_logo.svg",
+      "Philadelphia Phillies": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Philadelphia_Phillies_logo.svg",
+      "Pittsburgh Pirates": "https://upload.wikimedia.org/wikipedia/en/2/2a/Pittsburgh_Pirates_logo.svg",
+      "San Diego Padres": "https://upload.wikimedia.org/wikipedia/en/0/0c/San_Diego_Padres_logo.svg",
+      "San Francisco Giants": "https://upload.wikimedia.org/wikipedia/en/5/58/San_Francisco_Giants_Logo.svg",
+      "Seattle Mariners": "https://upload.wikimedia.org/wikipedia/en/8/8e/Seattle_Mariners_logo.svg",
+      "St. Louis Cardinals": "https://upload.wikimedia.org/wikipedia/en/6/6b/St._Louis_Cardinals_logo.svg",
+      "Tampa Bay Rays": "https://upload.wikimedia.org/wikipedia/en/c/c9/Tampa_Bay_Rays_logo.svg",
+      "Texas Rangers": "https://upload.wikimedia.org/wikipedia/en/4/43/Texas_Rangers_logo.svg",
+      "Toronto Blue Jays": "https://upload.wikimedia.org/wikipedia/en/0/0b/Toronto_Blue_Jays_logo.svg",
+      "Washington Nationals": "https://upload.wikimedia.org/wikipedia/en/1/1b/Washington_Nationals_logo.svg"
+    };
+
+    // Players array with example players
     const players = [
       {
         name: "John Doe",
-        dob: "2004-05-15", // ISO format date of birth
+        dob: "2004-05-15",
         position: "Shortstop",
         school: "Springfield High School",
         throwingHand: "Right",
         hittingHand: "Left"
+      },
+      {
+        name: "Jane Smith",
+        dob: "2003-08-22",
+        position: "Pitcher",
+        school: "Lincoln Prep",
+        throwingHand: "Left",
+        hittingHand: "Right"
+      },
+      {
+        name: "Carlos Martinez",
+        dob: "2004-11-02",
+        position: "Catcher",
+        school: "Roosevelt Academy",
+        throwingHand: "Right",
+        hittingHand: "Right"
+      },
+      {
+        name: "Emily Johnson",
+        dob: "2005-01-30",
+        position: "Outfielder",
+        school: "Central High",
+        throwingHand: "Right",
+        hittingHand: "Left"
       }
-      // Add more players here as needed
+      // Add more players here if desired
     ];
 
     // State to track picks
     let draftPicks = [];
 
-    // Initialize dropdowns
+    // DOM elements
     const teamSelect = document.getElementById('teamSelect');
     const playerSelect = document.getElementById('playerSelect');
     const draftPicksList = document.getElementById('draftPicksList');
     const draftButton = document.getElementById('draftButton');
+    const teamLogosList = document.getElementById('teamLogosList');
 
     // Modal elements
     const playerModal = document.getElementById('playerModal');
@@ -206,6 +329,7 @@
     const modalPlayerThrowing = document.getElementById('modalPlayerThrowing');
     const modalPlayerHitting = document.getElementById('modalPlayerHitting');
 
+    // Populate dropdowns
     function populateSelect(selectElement, items) {
       selectElement.innerHTML = '';
       if (items.length === 0) {
@@ -219,115 +343,118 @@
       items.forEach((item, index) => {
         const option = document.createElement('option');
         option.value = index;
-        // For players, show name only
         option.textContent = typeof item === 'string' ? item : item.name;
         selectElement.appendChild(option);
       });
     }
 
-    // Calculate age from DOB string
-    function calculateAge(dobString) {
-      const dob = new Date(dobString);
-      const today = new Date();
-      let age = today.getFullYear() - dob.getFullYear();
-      const m = today.getMonth() - dob.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-        age--;
-      }
-      return age;
+    // Render team logos sidebar
+    function renderTeamLogos() {
+      teamLogosList.innerHTML = '';
+      teams.forEach(team => {
+        const div = document.createElement('div');
+        div.className = 'team-logo';
+        div.setAttribute('data-team', team);
+        div.title = team;
+
+        const img = document.createElement('img');
+        img.src = teamLogos[team] || '';
+        img.alt = `${team} logo`;
+
+        const span = document.createElement('span');
+        span.textContent = team;
+
+        div.appendChild(img);
+        div.appendChild(span);
+        teamLogosList.appendChild(div);
+      });
     }
 
-    // Populate teams and players on load
-    populateSelect(teamSelect, teams);
-    populateSelect(playerSelect, players);
+    // Update logos to highlight teams that have drafted
+    function updateTeamLogos() {
+      const logoDivs = teamLogosList.querySelectorAll('.team-logo');
+      logoDivs.forEach(div => {
+        const teamName = div.getAttribute('data-team');
+        const hasPicked = draftPicks.some(pick => pick.team === teamName);
+        if (hasPicked) {
+          div.classList.add('active');
+        } else {
+          div.classList.remove('active');
+        }
+      });
+    }
 
-    // Handle draft pick
-    draftButton.addEventListener('click', () => {
-      const teamIndex = teamSelect.value;
-      const playerIndex = playerSelect.value;
-
-      if (playerIndex === '' || teamIndex === '') {
-        alert('Please select both a team and a player.');
-        return;
-      }
-
-      const team = teams[teamIndex];
-      const player = players[playerIndex];
-
-      // Check if player already drafted
-      if (draftPicks.some(pick => pick.player.name === player.name)) {
-        alert('This player has already been drafted.');
-        return;
-      }
-
-      // Record the pick
-      draftPicks.push({ team, player });
-
-      // Remove drafted player from players list
-      players.splice(playerIndex, 1);
-      populateSelect(playerSelect, players);
-
-      // Update draft picks display
-      updateDraftPicksDisplay();
-
-      // If no players left
-      if (players.length === 0) {
-        draftButton.disabled = true;
-        alert('All players have been drafted!');
-      }
-    });
-
-    // Update draft picks list with clickable player names
+    // Update draft picks list
     function updateDraftPicksDisplay() {
+      draftPicksList.innerHTML = '';
       if (draftPicks.length === 0) {
         draftPicksList.innerHTML = '<p>No picks made yet.</p>';
         return;
       }
-
-      draftPicksList.innerHTML = '';
-      draftPicks.forEach((pick, index) => {
+      draftPicks.forEach(pick => {
         const div = document.createElement('div');
-        div.classList.add('draft-pick');
-
-        const pickText = document.createTextNode(`Pick ${index + 1}: ${pick.team} selected `);
-        div.appendChild(pickText);
-
-        // Create clickable player name span
+        div.className = 'draft-pick';
         const playerSpan = document.createElement('span');
-        playerSpan.classList.add('player-name');
+        playerSpan.className = 'player-name';
         playerSpan.textContent = pick.player.name;
         playerSpan.addEventListener('click', () => {
-          showPlayerProfile(pick.player);
+          openPlayerModal(pick.player);
         });
-
+        div.textContent = `${pick.team} selected `;
         div.appendChild(playerSpan);
         draftPicksList.appendChild(div);
       });
     }
 
-    // Show player profile in modal
-    function showPlayerProfile(player) {
+    // Modal open/close
+    function openPlayerModal(player) {
       modalPlayerName.textContent = player.name;
-      const age = calculateAge(player.dob);
-      modalPlayerDOB.textContent = `${player.dob} (${age} years old)`;
+      modalPlayerDOB.textContent = player.dob;
       modalPlayerPosition.textContent = player.position;
       modalPlayerSchool.textContent = player.school;
       modalPlayerThrowing.textContent = player.throwingHand;
       modalPlayerHitting.textContent = player.hittingHand;
-
       playerModal.style.display = 'block';
     }
-
-    // Close modal on clicking close button or outside modal content
-    modalClose.addEventListener('click', () => {
+    function closePlayerModal() {
       playerModal.style.display = 'none';
+    }
+
+    // Event listeners
+    draftButton.addEventListener('click', () => {
+      const teamIndex = teamSelect.value;
+      const playerIndex = playerSelect.value;
+      if (teamIndex === '' || playerIndex === '') {
+        alert('Please select both a team and a player before drafting.');
+        return;
+      }
+      const team = teams[teamIndex];
+      const player = players[playerIndex];
+
+      // Prevent drafting the same player twice
+      if (draftPicks.some(pick => pick.player.name === player.name)) {
+        alert('This player has already been drafted.');
+        return;
+      }
+
+      draftPicks.push({ team, player });
+      updateDraftPicksDisplay();
+      updateTeamLogos();
     });
 
-    window.addEventListener('click', (event) => {
-      if (event.target === playerModal) {
-        playerModal.style.display = 'none';
+    modalClose.addEventListener('click', closePlayerModal);
+    window.addEventListener('click', e => {
+      if (e.target === playerModal) {
+        closePlayerModal();
       }
     });
+
+    // Initialize
+    populateSelect(teamSelect, teams);
+    populateSelect(playerSelect, players);
+    renderTeamLogos();
+    updateDraftPicksDisplay();
+    updateTeamLogos();
   </script>
 </body>
 </html>
