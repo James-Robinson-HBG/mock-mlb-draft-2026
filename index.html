@@ -215,7 +215,7 @@
 
     /* Modal styles */
     .modal {
-      display: none;
+      display: none; /* Hidden initially */
       position: fixed;
       z-index: 1100;
       left: 0;
@@ -569,4 +569,15 @@
       modalPlayerName.textContent = player.name;
       modalPlayerDOB.textContent = player.dob;
       modalPlayerPosition.textContent = player.position;
-      modalPlayerSchool
+      modalPlayerSchool.textContent = player.school;
+      modalPlayerThrowing.textContent = player.throwingHand;
+      modalPlayerHitting.textContent = player.hittingHand;
+      playerModal.style.display = 'flex'; // Show modal as flex
+    }
+
+    // Close player modal
+    function closePlayerModal() {
+      playerModal.style.display = 'none';
+    }
+
+    // Remove drafted player from player list
