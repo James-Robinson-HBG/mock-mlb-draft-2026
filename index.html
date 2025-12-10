@@ -399,7 +399,6 @@
     "Washington Nationals": "https://upload.wikimedia.org/wikipedia/en/1/1b/Washington_Nationals_logo.svg"
   };
 
-  // Initial players list
   let players = [
     {
       name: "John Doe",
@@ -555,4 +554,15 @@
     modalPlayerSchool.textContent = player.school;
     modalPlayerThrowing.textContent = player.throwingHand;
     modalPlayerHitting.textContent = player.hittingHand;
-    playerModal.style.display
+    playerModal.style.display = 'flex'; // Show modal as flex
+  }
+
+  // Close player modal
+  function closePlayerModal() {
+    playerModal.style.display = 'none';
+  }
+
+  // Remove drafted player from players list and update dropdown
+  function removeDraftedPlayer(playerName) {
+    players = players.filter(p => p.name !== playerName);
+    populateSelect(playerSelect,
