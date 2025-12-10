@@ -39,7 +39,7 @@
     max-width: 1100px;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: 1fr 380px;
     gap: 40px;
   }
   @media (max-width: 900px) {
@@ -124,13 +124,13 @@
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
   }
 
-  /* Right panel: teams grid */
+  /* Right panel: teams grid without logos */
   .teams-panel {
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
     padding: 25px 20px 35px;
-    max-height: 550px;
+    max-height: 650px;
     overflow-y: auto;
   }
   .teams-panel h2 {
@@ -143,60 +143,42 @@
   }
   .teams-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 22px;
+    grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: 90px;
+    gap: 16px 20px;
   }
   .team-item {
+    background: #f9fbff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.07);
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 8px;
-    padding: 14px 6px;
-    border-radius: 12px;
-    background: #f9fbff;
-    box-shadow: 0 3px 10px rgb(0 0 0 / 0.07);
-    cursor: default;
-    transition: background-color 0.35s ease, box-shadow 0.35s ease;
     user-select: none;
-    min-width: 90px;
+    cursor: default;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #333;
+    position: relative;
   }
   .team-item.active {
     background-color: #d9e8ff;
     box-shadow: 0 6px 20px rgb(0 90 156 / 0.35);
   }
-  .team-logo {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-    filter: grayscale(100%);
-    opacity: 0.4;
-    transition: filter 0.3s ease, opacity 0.3s ease;
-    border-radius: 8px;
-    background: white;
-    box-shadow: 0 0 6px rgb(0 0 0 / 0.12);
-  }
-  .team-item.active .team-logo {
-    filter: none;
-    opacity: 1;
-  }
   .team-name {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #333;
-    text-align: center;
-    line-height: 1.3;
-    min-height: 2.8em; /* about 2 lines */
+    line-height: 1.2;
   }
-  .picked-label {
-    background: #005a9c;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 14px;
-    user-select: none;
+  .player-picked {
     margin-top: 6px;
-    letter-spacing: 0.05em;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #005a9c;
+    word-break: break-word;
+    max-height: 2.4em; /* approx 2 lines */
+    overflow: hidden;
   }
 
   /* Scrollbar styling for teams panel */
@@ -209,6 +191,17 @@
   }
   .teams-panel::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .main-wrapper {
+      grid-template-columns: 1fr;
+    }
+    .teams-grid {
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 90px;
+    }
   }
 </style>
 </head>
@@ -275,39 +268,6 @@
     "Washington Nationals"
   ];
 
-  const teamLogos = {
-    "Arizona Diamondbacks": "https://upload.wikimedia.org/wikipedia/en/0/0e/Arizona_Diamondbacks_logo.svg",
-    "Atlanta Braves": "https://upload.wikimedia.org/wikipedia/en/2/25/Atlanta_Braves.svg",
-    "Baltimore Orioles": "https://upload.wikimedia.org/wikipedia/en/7/76/Baltimore_Orioles_logo.svg",
-    "Boston Red Sox": "https://upload.wikimedia.org/wikipedia/en/6/6d/RedSoxPrimary_HangingSocks.svg",
-    "Chicago Cubs": "https://upload.wikimedia.org/wikipedia/en/8/80/Chicago_Cubs_Logo.svg",
-    "Chicago White Sox": "https://upload.wikimedia.org/wikipedia/en/0/0c/Chicago_White_Sox_logo.svg",
-    "Cincinnati Reds": "https://upload.wikimedia.org/wikipedia/commons/0/01/Cincinnati_Reds_Logo.svg",
-    "Cleveland Guardians": "https://upload.wikimedia.org/wikipedia/en/4/4b/Cleveland_Guardians_logo.svg",
-    "Colorado Rockies": "https://upload.wikimedia.org/wikipedia/en/2/28/Colorado_Rockies_logo.svg",
-    "Detroit Tigers": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Detroit_Tigers_logo.svg",
-    "Houston Astros": "https://upload.wikimedia.org/wikipedia/en/c/c7/Houston_Astros_logo.svg",
-    "Kansas City Royals": "https://upload.wikimedia.org/wikipedia/en/9/9d/Kansas_City_Royals_Insignia.svg",
-    "Los Angeles Angels": "https://upload.wikimedia.org/wikipedia/en/7/7e/Los_Angeles_Angels_logo.svg",
-    "Los Angeles Dodgers": "https://upload.wikimedia.org/wikipedia/en/0/09/Los_Angeles_Dodgers_Logo.svg",
-    "Miami Marlins": "https://upload.wikimedia.org/wikipedia/en/f/fd/Miami_Marlins_logo.svg",
-    "Milwaukee Brewers": "https://upload.wikimedia.org/wikipedia/en/2/29/Milwaukee_Brewers_logo.svg",
-    "Minnesota Twins": "https://upload.wikimedia.org/wikipedia/en/2/2e/Minnesota_Twins_logo.svg",
-    "New York Mets": "https://upload.wikimedia.org/wikipedia/en/7/7b/New_York_Mets_logo.svg",
-    "New York Yankees": "https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Yankees_logo.svg",
-    "Oakland Athletics": "https://upload.wikimedia.org/wikipedia/en/6/6b/Oakland_A%27s_logo.svg",
-    "Philadelphia Phillies": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Philadelphia_Phillies_logo.svg",
-    "Pittsburgh Pirates": "https://upload.wikimedia.org/wikipedia/en/2/2a/Pittsburgh_Pirates_logo.svg",
-    "San Diego Padres": "https://upload.wikimedia.org/wikipedia/en/0/0c/San_Diego_Padres_logo.svg",
-    "San Francisco Giants": "https://upload.wikimedia.org/wikipedia/en/5/58/San_Francisco_Giants_Logo.svg",
-    "Seattle Mariners": "https://upload.wikimedia.org/wikipedia/en/8/8e/Seattle_Mariners_logo.svg",
-    "St. Louis Cardinals": "https://upload.wikimedia.org/wikipedia/en/6/6b/St._Louis_Cardinals_logo.svg",
-    "Tampa Bay Rays": "https://upload.wikimedia.org/wikipedia/en/c/c9/Tampa_Bay_Rays_logo.svg",
-    "Texas Rangers": "https://upload.wikimedia.org/wikipedia/en/4/43/Texas_Rangers_logo.svg",
-    "Toronto Blue Jays": "https://upload.wikimedia.org/wikipedia/en/0/0b/Toronto_Blue_Jays_logo.svg",
-    "Washington Nationals": "https://upload.wikimedia.org/wikipedia/en/1/1b/Washington_Nationals_logo.svg"
-  };
-
   let players = [
     {
       name: "John Doe",
@@ -345,6 +305,12 @@
 
   let draftPicks = [];
 
+  const teamSelect = document.getElementById('teamSelect');
+  const playerSelect = document.getElementById('playerSelect');
+  const draftPicksList = document.getElementById('draftPicksList');
+  const draftButton = document.getElementById('draftButton');
+  const teamsGrid = document.getElementById('teamsGrid');
+
   function populateSelect(selectElement, items) {
     selectElement.innerHTML = '';
     if (items.length === 0) {
@@ -369,26 +335,17 @@
       const div = document.createElement('div');
       div.className = 'team-item';
       div.setAttribute('data-team', team);
-      div.title = team;
 
-      const img = document.createElement('img');
-      img.className = 'team-logo';
-      img.src = teamLogos[team] || '';
-      img.alt = `${team} logo`;
-      img.loading = 'lazy';
+      const spanTeam = document.createElement('span');
+      spanTeam.className = 'team-name';
+      spanTeam.textContent = team;
 
-      const span = document.createElement('span');
-      span.className = 'team-name';
-      span.textContent = team;
+      const spanPlayer = document.createElement('span');
+      spanPlayer.className = 'player-picked';
+      spanPlayer.textContent = ''; // Empty initially
 
-      const pickedLabel = document.createElement('span');
-      pickedLabel.className = 'picked-label';
-      pickedLabel.textContent = 'Picked';
-      pickedLabel.style.display = 'none';
-
-      div.appendChild(img);
-      div.appendChild(span);
-      div.appendChild(pickedLabel);
+      div.appendChild(spanTeam);
+      div.appendChild(spanPlayer);
 
       teamsGrid.appendChild(div);
     });
@@ -398,13 +355,14 @@
     const teamItems = teamsGrid.querySelectorAll('.team-item');
     teamItems.forEach(item => {
       const teamName = item.getAttribute('data-team');
-      const hasPicked = draftPicks.some(p => p.team === teamName);
-      if (hasPicked) {
+      const pick = draftPicks.find(p => p.team === teamName);
+      const playerSpan = item.querySelector('.player-picked');
+      if (pick) {
         item.classList.add('active');
-        item.querySelector('.picked-label').style.display = 'inline-block';
+        playerSpan.textContent = pick.player.name;
       } else {
         item.classList.remove('active');
-        item.querySelector('.picked-label').style.display = 'none';
+        playerSpan.textContent = '';
       }
     });
   }
@@ -423,7 +381,7 @@
     });
   }
 
-  // Remove drafted player from players array and update player dropdown
+  // Remove drafted player from players array and update dropdown
   function removeDraftedPlayer(playerName) {
     players = players.filter(p => p.name !== playerName);
     populateSelect(playerSelect, players);
