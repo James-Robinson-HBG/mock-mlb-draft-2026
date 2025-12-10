@@ -120,25 +120,8 @@
     margin-bottom: 14px;
     font-weight: 700;
     font-size: 1.1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     user-select: none;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-  }
-  .draft-pick .player-name {
-    color: #005a9c;
-    cursor: pointer;
-    text-decoration: underline;
-    font-weight: 800;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 70%;
-  }
-  .draft-pick .player-name:focus {
-    outline: 3px solid #005a9c;
-    outline-offset: 2px;
   }
 
   /* Right panel: teams grid */
@@ -216,65 +199,6 @@
     letter-spacing: 0.05em;
   }
 
-  /* Modal styles */
-  .modal {
-    display: none; /* Hidden initially */
-    position: fixed;
-    z-index: 1100;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(3px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
-  }
-  .modal-content {
-    background-color: #fff;
-    border-radius: 14px;
-    max-width: 420px;
-    width: 100%;
-    padding: 30px 35px;
-    box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
-    position: relative;
-    font-size: 1rem;
-    color: #222;
-    user-select: none;
-  }
-  .close-button {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    font-size: 30px;
-    font-weight: 700;
-    color: #666;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.25s ease;
-    line-height: 1;
-    padding: 0;
-    user-select: none;
-  }
-  .close-button:hover {
-    color: #222;
-  }
-  .modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 18px;
-    font-weight: 800;
-    color: #003366;
-  }
-  .modal-content p {
-    margin: 8px 0;
-  }
-  .modal-content strong {
-    color: #005a9c;
-  }
-
   /* Scrollbar styling for teams panel */
   .teams-panel::-webkit-scrollbar {
     width: 8px;
@@ -315,21 +239,6 @@
     <h2>MLB Teams</h2>
     <div class="teams-grid" id="teamsGrid"></div>
   </aside>
-</div>
-
-<!-- Player Profile Modal -->
-<div id="playerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPlayerName" aria-describedby="modalPlayerDesc">
-  <div class="modal-content">
-    <button class="close-button" id="modalClose" aria-label="Close player profile">&times;</button>
-    <h2 id="modalPlayerName"></h2>
-    <div id="modalPlayerDesc">
-      <p><strong>Date of Birth:</strong> <span id="modalPlayerDOB"></span></p>
-      <p><strong>Position:</strong> <span id="modalPlayerPosition"></span></p>
-      <p><strong>School:</strong> <span id="modalPlayerSchool"></span></p>
-      <p><strong>Throwing Hand:</strong> <span id="modalPlayerThrowing"></span></p>
-      <p><strong>Hitting Hand:</strong> <span id="modalPlayerHitting"></span></p>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -436,22 +345,6 @@
 
   let draftPicks = [];
 
-  const teamSelect = document.getElementById('teamSelect');
-  const playerSelect = document.getElementById('playerSelect');
-  const draftPicksList = document.getElementById('draftPicksList');
-  const draftButton = document.getElementById('draftButton');
-  const teamsGrid = document.getElementById('teamsGrid');
-
-  const playerModal = document.getElementById('playerModal');
-  const modalClose = document.getElementById('modalClose');
-  const modalPlayerName = document.getElementById('modalPlayerName');
-  const modalPlayerDOB = document.getElementById('modalPlayerDOB');
-  const modalPlayerPosition = document.getElementById('modalPlayerPosition');
-  const modalPlayerSchool = document.getElementById('modalPlayerSchool');
-  const modalPlayerThrowing = document.getElementById('modalPlayerThrowing');
-  const modalPlayerHitting = document.getElementById('modalPlayerHitting');
-
-  // Populate selects
   function populateSelect(selectElement, items) {
     selectElement.innerHTML = '';
     if (items.length === 0) {
@@ -470,7 +363,6 @@
     });
   }
 
-  // Render teams grid
   function renderTeamsGrid() {
     teamsGrid.innerHTML = '';
     teams.forEach(team => {
@@ -502,7 +394,6 @@
     });
   }
 
-  // Update teams grid for picks
   function updateTeamsGrid() {
     const teamItems = teamsGrid.querySelectorAll('.team-item');
     teamItems.forEach(item => {
@@ -518,7 +409,6 @@
     });
   }
 
-  // Update draft picks list
   function updateDraftPicksDisplay() {
     draftPicksList.innerHTML = '';
     if (draftPicks.length === 0) {
@@ -528,41 +418,49 @@
     draftPicks.forEach(pick => {
       const div = document.createElement('div');
       div.className = 'draft-pick';
-      const playerSpan = document.createElement('span');
-      playerSpan.className = 'player-name';
-      playerSpan.textContent = pick.player.name;
-      playerSpan.title = `View profile for ${pick.player.name}`;
-      playerSpan.tabIndex = 0;
-      playerSpan.addEventListener('click', () => openPlayerModal(pick.player));
-      playerSpan.addEventListener('keypress', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          openPlayerModal(pick.player);
-          e.preventDefault();
-        }
-      });
-      div.textContent = `${pick.team} selected `;
-      div.appendChild(playerSpan);
+      div.textContent = `${pick.team} selected ${pick.player.name}`;
       draftPicksList.appendChild(div);
     });
   }
 
-  // Open player modal
-  function openPlayerModal(player) {
-    modalPlayerName.textContent = player.name;
-    modalPlayerDOB.textContent = player.dob;
-    modalPlayerPosition.textContent = player.position;
-    modalPlayerSchool.textContent = player.school;
-    modalPlayerThrowing.textContent = player.throwingHand;
-    modalPlayerHitting.textContent = player.hittingHand;
-    playerModal.style.display = 'flex'; // Show modal as flex
-  }
-
-  // Close player modal
-  function closePlayerModal() {
-    playerModal.style.display = 'none';
-  }
-
-  // Remove drafted player from players list and update dropdown
+  // Remove drafted player from players array and update player dropdown
   function removeDraftedPlayer(playerName) {
     players = players.filter(p => p.name !== playerName);
-    populateSelect(playerSelect,
+    populateSelect(playerSelect, players);
+  }
+
+  draftButton.addEventListener('click', () => {
+    const teamIndex = teamSelect.value;
+    const playerIndex = playerSelect.value;
+
+    if (teamIndex === '' || playerIndex === '') {
+      alert('Please select both a team and a player before drafting.');
+      return;
+    }
+
+    const team = teams[teamIndex];
+    const player = players[playerIndex];
+
+    // Prevent drafting the same player twice
+    if (draftPicks.some(pick => pick.player.name === player.name)) {
+      alert('This player has already been drafted.');
+      return;
+    }
+
+    draftPicks.push({ team, player });
+    updateDraftPicksDisplay();
+    updateTeamsGrid();
+
+    // Remove drafted player from dropdown
+    removeDraftedPlayer(player.name);
+  });
+
+  // Initialize
+  populateSelect(teamSelect, teams);
+  populateSelect(playerSelect, players);
+  renderTeamsGrid();
+  updateDraftPicksDisplay();
+  updateTeamsGrid();
+</script>
+</body>
+</html>
