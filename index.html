@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Full Width</title>
+<title>Baseball Draft Simulator 2026 - Enhanced Player Info</title>
 <style>
-  html, body {
+  body {
     margin: 0; padding: 0; height: 100%;
     width: 100vw;
     overflow-x: hidden;
-  }
-  body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f6f7f9;
     color: #222;
@@ -39,7 +37,7 @@
   .main-wrapper {
     display: flex;
     width: 100vw;
-    height: calc(100vh - 80px); /* full height minus header */
+    height: calc(100vh - 80px);
     box-sizing: border-box;
   }
   @media (max-width: 900px) {
@@ -168,17 +166,18 @@
   .team-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
   }
   .team-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: default;
-    padding: 8px 12px;
+    padding: 16px 12px;
     border-radius: 8px;
     user-select: none;
     transition: background-color 0.2s ease;
+    min-height: 70px;
   }
   .team-row.active {
     background-color: #d9e8ff;
@@ -212,16 +211,16 @@
   }
   .player-info {
     text-align: right;
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 700;
+    font-size: 1.2rem;
     color: #005a9c;
-    min-width: 140px;
+    min-width: 160px;
   }
   .player-position {
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: #004a80;
-    margin-top: 2px;
-    font-weight: 600;
+    font-weight: 700;
+    margin-top: 4px;
   }
 
   /* Scrollbar styling for teams panel */
@@ -299,6 +298,22 @@
     "Toronto Blue Jays",
     "Washington Nationals"
   ];
+
+  // Position abbreviations map
+  const positionAbbreviations = {
+    "Shortstop": "SS",
+    "Pitcher": "P",
+    "Catcher": "C",
+    "Outfielder": "OF",
+    "First Base": "1B",
+    "Second Base": "2B",
+    "Third Base": "3B",
+    "Designated Hitter": "DH",
+    "Center Field": "CF",
+    "Left Field": "LF",
+    "Right Field": "RF",
+    // Add more as needed
+  };
 
   let players = [
     {
@@ -404,9 +419,10 @@
       const playerInfo = row.querySelector('.player-info');
       if (pick) {
         row.classList.add('active');
+        const posAbbr = positionAbbreviations[pick.player.position] || pick.player.position;
         playerInfo.innerHTML = `
           <div>${pick.player.name}</div>
-          <div style="font-size:0.85rem; color:#004a80; font-weight:600;">${pick.player.position}</div>
+          <div class="player-position">${posAbbr}</div>
         `;
       } else {
         row.classList.remove('active');
