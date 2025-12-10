@@ -3,10 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - PFF Style Team List</title>
+<title>Baseball Draft Simulator 2026 - Full Width</title>
 <style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    width: 100vw;
+    overflow-x: hidden;
+  }
   body {
-    margin: 0;
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f6f7f9;
     color: #222;
@@ -17,45 +21,76 @@
   }
   header {
     width: 100%;
-    max-width: 1100px;
-    padding: 20px 0;
+    padding: 20px 40px;
+    background: white;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    user-select: none;
   }
   header h1 {
     font-weight: 800;
     font-size: 2.5rem;
     color: #003366;
     margin: 0;
+    letter-spacing: -0.03em;
   }
 
   .main-wrapper {
-    max-width: 1100px;
-    width: 100%;
     display: flex;
-    gap: 40px;
-    padding: 30px 0;
-    height: 80vh;
+    width: 100vw;
+    height: calc(100vh - 80px); /* full height minus header */
+    box-sizing: border-box;
   }
   @media (max-width: 900px) {
     .main-wrapper {
       flex-direction: column;
       height: auto;
-      padding: 20px 0;
     }
   }
 
-  /* Left panel */
+  /* Left panel: 40% width */
   .draft-panel {
-    flex: 1 1 350px;
+    flex: 0 0 40%;
     background: #fff;
-    border-radius: 12px;
+    border-radius: 12px 0 0 12px;
     box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
-    padding: 30px 35px;
+    padding: 30px 40px;
     display: flex;
     flex-direction: column;
     height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
+  @media (max-width: 900px) {
+    .draft-panel {
+      flex: none;
+      border-radius: 12px 12px 0 0;
+      height: auto;
+      padding: 20px 25px;
+    }
+  }
+
+  /* Right panel: 60% width */
+  .teams-panel {
+    flex: 0 0 60%;
+    background: #fff;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+    padding: 25px 40px 35px 40px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  @media (max-width: 900px) {
+    .teams-panel {
+      flex: none;
+      border-radius: 0 0 12px 12px;
+      height: auto;
+      padding: 20px 25px;
+    }
+  }
+
   label {
     font-weight: 700;
     margin-top: 24px;
@@ -96,6 +131,7 @@
     cursor: not-allowed;
   }
 
+  /* Draft picks list */
   .draft-picks {
     margin-top: 40px;
     flex-grow: 1;
@@ -120,16 +156,7 @@
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
   }
 
-  /* Right panel: vertical team list */
-  .teams-panel {
-    flex: 1 1 350px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
-    padding: 20px 25px;
-    height: 100%;
-    overflow-y: auto;
-  }
+  /* Team list styling */
   .teams-panel h2 {
     font-size: 1.4rem;
     margin-bottom: 24px;
@@ -194,6 +221,7 @@
     font-size: 0.85rem;
     color: #004a80;
     margin-top: 2px;
+    font-weight: 600;
   }
 
   /* Scrollbar styling for teams panel */
@@ -206,17 +234,6 @@
   }
   .teams-panel::-webkit-scrollbar-track {
     background: transparent;
-  }
-
-  @media (max-width: 900px) {
-    .main-wrapper {
-      flex-direction: column;
-      height: auto;
-    }
-    .teams-panel {
-      height: 300px;
-      margin-top: 30px;
-    }
   }
 </style>
 </head>
@@ -371,9 +388,6 @@
 
       const right = document.createElement('div');
       right.className = 'player-info';
-
-      // Initially empty, updated later
-      right.innerHTML = '';
 
       row.appendChild(left);
       row.appendChild(right);
