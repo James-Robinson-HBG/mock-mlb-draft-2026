@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Player List Left Panel</title>
+<title>Baseball Draft Simulator 2026 - Search & Draft Buttons</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%;
@@ -47,7 +47,7 @@
     }
   }
 
-  /* Left panel: player list */
+  /* Left panel: player list and search */
   .draft-panel {
     flex: 0 0 40%;
     background: #fff;
@@ -68,18 +68,41 @@
     }
   }
 
+  label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #444;
+    user-select: none;
+  }
+
+  #playerSearch {
+    margin-top: 8px;
+    padding: 10px 14px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1.5px solid #ccc;
+    font-family: inherit;
+    outline-offset: 2px;
+  }
+  #playerSearch:focus {
+    border-color: #005a9c;
+    outline: none;
+  }
+
   .player-list {
+    margin-top: 20px;
     flex-grow: 1;
     overflow-y: auto;
-    margin-top: 20px;
     border-top: 2px solid #ddd;
     padding-top: 10px;
   }
 
   .player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 12px;
     border-radius: 8px;
-    cursor: pointer;
     user-select: none;
     font-weight: 600;
     font-size: 1.1rem;
@@ -89,19 +112,38 @@
   .player-item:hover {
     background-color: #e0f0ff;
   }
-  .player-item.selected {
-    background-color: #005a9c;
-    color: white;
-    font-weight: 700;
+  .player-name {
+    flex-grow: 1;
   }
   .player-position {
     font-size: 0.85rem;
     color: #003366;
     margin-left: 8px;
     font-weight: 500;
+    white-space: nowrap;
+  }
+  .draft-button {
+    margin-left: 15px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+    background-color: #005a9c;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.25s ease;
+  }
+  .draft-button:hover:not(:disabled) {
+    background-color: #003f6b;
+  }
+  .draft-button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
   }
 
-  /* Right panel: picks list */
+  /* Right panel: draft picks list */
   .teams-panel {
     flex: 0 0 60%;
     background: #fff;
@@ -201,7 +243,9 @@
 
 <div class="main-wrapper">
   <section class="draft-panel" aria-label="Player List and Draft Controls">
-    <label>Select Player:</label>
+    <label for="playerSearch">Search Players:</label>
+    <input type="text" id="playerSearch" placeholder="Type to filter players..." aria-label="Search players" />
+
     <div class="player-list" id="playerList" tabindex="0" aria-label="Available Players">
       <!-- Player items inserted here -->
     </div>
@@ -313,43 +357,63 @@
 
   const playerList = document.getElementById('playerList');
   const draftPicksList = document.getElementById('draftPicksList');
+  const playerSearch = document.getElementById('playerSearch');
 
-  function renderPlayerList() {
+  function renderPlayerList(filter = '') {
     playerList.innerHTML = '';
-    players.forEach((player, index) => {
+    const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+    if (filteredPlayers.length === 0) {
+      playerList.innerHTML = '<p>No players found.</p>';
+      return;
+    }
+    filteredPlayers.forEach((player, index) => {
       const div = document.createElement('div');
       div.className = 'player-item';
       div.tabIndex = 0;
-      div.textContent = player.name + " ";
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'player-name';
+      nameSpan.textContent = player.name;
+
       const posSpan = document.createElement('span');
       posSpan.className = 'player-position';
       posSpan.textContent = `(${positionAbbreviations[player.position] || player.position})`;
+
+      const draftBtn = document.createElement('button');
+      draftBtn.className = 'draft-button';
+      draftBtn.textContent = 'Draft';
+      draftBtn.addEventListener('click', () => selectPlayer(player));
+
+      div.appendChild(nameSpan);
       div.appendChild(posSpan);
-      div.addEventListener('click', () => selectPlayer(index));
+      div.appendChild(draftBtn);
+
+      // Keyboard accessibility
       div.addEventListener('keypress', e => {
         if (e.key === 'Enter' || e.key === ' ') {
-          selectPlayer(index);
+          selectPlayer(player);
           e.preventDefault();
         }
       });
+
       playerList.appendChild(div);
     });
   }
 
-  function selectPlayer(playerIndex) {
+  function selectPlayer(player) {
     if (currentPickIndex >= draftOrder.length) {
       alert('All picks have been made.');
       return;
     }
-    const player = players[playerIndex];
     const { pick, team } = draftOrder[currentPickIndex];
 
     draftPicks.push({ pick, team, player });
     currentPickIndex++;
 
-    // Remove player from list
-    players.splice(playerIndex, 1);
-    renderPlayerList();
+    // Remove player from players array
+    players = players.filter(p => p !== player);
+
+    renderPlayerList(playerSearch.value);
     updateDraftPicksDisplay();
 
     // Scroll draft picks list to bottom for new pick
@@ -396,6 +460,10 @@
       draftPicksList.appendChild(div);
     });
   }
+
+  playerSearch.addEventListener('input', () => {
+    renderPlayerList(playerSearch.value);
+  });
 
   // Initialize
   renderPlayerList();
