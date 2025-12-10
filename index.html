@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Scrollable Picks Panel</title>
+<title>Baseball Draft Simulator 2026 - Player List Left Panel</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%;
@@ -37,7 +37,7 @@
   .main-wrapper {
     display: flex;
     width: 100vw;
-    height: calc(100vh - 80px); /* Full viewport height minus header */
+    height: calc(100vh - 80px);
     box-sizing: border-box;
   }
   @media (max-width: 900px) {
@@ -47,7 +47,7 @@
     }
   }
 
-  /* Left panel: draft controls and picks */
+  /* Left panel: player list */
   .draft-panel {
     flex: 0 0 40%;
     background: #fff;
@@ -58,7 +58,6 @@
     flex-direction: column;
     height: 100%;
     box-sizing: border-box;
-    overflow-y: auto;
   }
   @media (max-width: 900px) {
     .draft-panel {
@@ -69,45 +68,37 @@
     }
   }
 
-  label {
-    font-weight: 700;
-    margin-top: 24px;
-    margin-bottom: 8px;
-    font-size: 1.1rem;
-    color: #444;
+  .player-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-top: 20px;
+    border-top: 2px solid #ddd;
+    padding-top: 10px;
   }
 
-  select, button {
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 1.1rem;
+  .player-item {
+    padding: 10px 12px;
     border-radius: 8px;
-    border: 1.5px solid #ccc;
+    cursor: pointer;
+    user-select: none;
     font-weight: 600;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
+    font-size: 1.1rem;
+    color: #004a80;
+    transition: background-color 0.2s ease;
   }
-  select:focus, button:focus {
-    border-color: #005a9c;
-    outline: none;
+  .player-item:hover {
+    background-color: #e0f0ff;
   }
-  button {
-    margin-top: 30px;
+  .player-item.selected {
     background-color: #005a9c;
     color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    user-select: none;
-    transition: background-color 0.25s ease;
+    font-weight: 700;
   }
-  button:hover:not(:disabled) {
-    background-color: #003f6b;
-  }
-  button:disabled {
-    background-color: #a0a0a0;
-    cursor: not-allowed;
+  .player-position {
+    font-size: 0.85rem;
+    color: #003366;
+    margin-left: 8px;
+    font-weight: 500;
   }
 
   /* Right panel: picks list */
@@ -188,14 +179,17 @@
   }
 
   /* Scrollbar styling */
-  .draft-picks::-webkit-scrollbar {
+  .draft-picks::-webkit-scrollbar,
+  .player-list::-webkit-scrollbar {
     width: 8px;
   }
-  .draft-picks::-webkit-scrollbar-thumb {
+  .draft-picks::-webkit-scrollbar-thumb,
+  .player-list::-webkit-scrollbar-thumb {
     background-color: #a0b9d6;
     border-radius: 4px;
   }
-  .draft-picks::-webkit-scrollbar-track {
+  .draft-picks::-webkit-scrollbar-track,
+  .player-list::-webkit-scrollbar-track {
     background: transparent;
   }
 </style>
@@ -206,26 +200,18 @@
 </header>
 
 <div class="main-wrapper">
-  <section class="draft-panel" aria-label="Draft Controls and Picks">
-    <label for="teamSelect">Select Team:</label>
-    <select id="teamSelect" aria-describedby="teamSelectHelp"></select>
-
-    <label for="playerSelect">Select Player:</label>
-    <select id="playerSelect" aria-describedby="playerSelectHelp"></select>
-
-    <button id="draftButton" aria-live="polite" aria-atomic="true">Make Draft Pick</button>
-
-    <div class="draft-picks" id="draftPicksContainer" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
-      <h2>Draft Picks So Far</h2>
-      <div id="draftPicksList">
-        <p>No picks made yet.</p>
-      </div>
+  <section class="draft-panel" aria-label="Player List and Draft Controls">
+    <label>Select Player:</label>
+    <div class="player-list" id="playerList" tabindex="0" aria-label="Available Players">
+      <!-- Player items inserted here -->
     </div>
   </section>
 
   <aside class="teams-panel" aria-label="Draft Picks List">
     <h2>Draft Picks Order</h2>
-    <div class="draft-picks" id="draftPicksList"></div>
+    <div class="draft-picks" id="draftPicksList">
+      <p>No picks made yet.</p>
+    </div>
   </aside>
 </div>
 
@@ -323,43 +309,51 @@
   ];
 
   let draftPicks = [];
+  let currentPickIndex = 0;
 
-  const teamSelect = document.getElementById('teamSelect');
-  const playerSelect = document.getElementById('playerSelect');
+  const playerList = document.getElementById('playerList');
   const draftPicksList = document.getElementById('draftPicksList');
-  const draftButton = document.getElementById('draftButton');
 
-  // Populate team select with unique teams in draft order
-  function populateTeamSelect() {
-    teamSelect.innerHTML = '';
-    const uniqueTeams = [];
-    draftOrder.forEach(({team}) => {
-      if (!uniqueTeams.includes(team)) uniqueTeams.push(team);
-    });
-    uniqueTeams.forEach(team => {
-      const option = document.createElement('option');
-      option.value = team;
-      option.textContent = team;
-      teamSelect.appendChild(option);
+  function renderPlayerList() {
+    playerList.innerHTML = '';
+    players.forEach((player, index) => {
+      const div = document.createElement('div');
+      div.className = 'player-item';
+      div.tabIndex = 0;
+      div.textContent = player.name + " ";
+      const posSpan = document.createElement('span');
+      posSpan.className = 'player-position';
+      posSpan.textContent = `(${positionAbbreviations[player.position] || player.position})`;
+      div.appendChild(posSpan);
+      div.addEventListener('click', () => selectPlayer(index));
+      div.addEventListener('keypress', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          selectPlayer(index);
+          e.preventDefault();
+        }
+      });
+      playerList.appendChild(div);
     });
   }
 
-  function populatePlayerSelect() {
-    playerSelect.innerHTML = '';
-    if (players.length === 0) {
-      const option = document.createElement('option');
-      option.textContent = 'No players available';
-      option.disabled = true;
-      option.selected = true;
-      playerSelect.appendChild(option);
+  function selectPlayer(playerIndex) {
+    if (currentPickIndex >= draftOrder.length) {
+      alert('All picks have been made.');
       return;
     }
-    players.forEach((player, index) => {
-      const option = document.createElement('option');
-      option.value = index;
-      option.textContent = player.name;
-      playerSelect.appendChild(option);
-    });
+    const player = players[playerIndex];
+    const { pick, team } = draftOrder[currentPickIndex];
+
+    draftPicks.push({ pick, team, player });
+    currentPickIndex++;
+
+    // Remove player from list
+    players.splice(playerIndex, 1);
+    renderPlayerList();
+    updateDraftPicksDisplay();
+
+    // Scroll draft picks list to bottom for new pick
+    draftPicksList.scrollTop = draftPicksList.scrollHeight;
   }
 
   function updateDraftPicksDisplay() {
@@ -403,62 +397,9 @@
     });
   }
 
-  // Remove drafted player from players array and update dropdown
-  function removeDraftedPlayer(playerName) {
-    players = players.filter(p => p.name !== playerName);
-    populatePlayerSelect();
-  }
-
-  // Advance team select to next pick's team
-  function advanceToNextTeam() {
-    const draftedPickNumbers = draftPicks.map(p => p.pick);
-    // Find next pick number not drafted yet
-    const nextPick = draftOrder.find(d => !draftedPickNumbers.includes(d.pick));
-    if (nextPick) {
-      teamSelect.value = nextPick.team;
-    } else {
-      // No picks left
-      teamSelect.value = '';
-    }
-  }
-
-  draftButton.addEventListener('click', () => {
-    const selectedTeam = teamSelect.value;
-    const playerIndex = playerSelect.value;
-
-    if (!selectedTeam || playerIndex === '') {
-      alert('Please select both a team and a player before drafting.');
-      return;
-    }
-
-    const player = players[playerIndex];
-
-    // Find next available pick number for this team
-    const takenPicks = draftPicks.filter(p => p.team === selectedTeam).map(p => p.pick);
-    const teamPicksInOrder = draftOrder.filter(d => d.team === selectedTeam).map(d => d.pick);
-
-    // Find first pick number for this team not taken yet
-    const nextPickNum = teamPicksInOrder.find(pickNum => !takenPicks.includes(pickNum));
-    if (!nextPickNum) {
-      alert(`${selectedTeam} has no remaining picks.`);
-      return;
-    }
-
-    draftPicks.push({ pick: nextPickNum, team: selectedTeam, player });
-    updateDraftPicksDisplay();
-
-    // Remove drafted player from dropdown
-    removeDraftedPlayer(player.name);
-
-    // Auto advance to next team's pick
-    advanceToNextTeam();
-  });
-
-  // Initialize selects and display
-  populateTeamSelect();
-  populatePlayerSelect();
+  // Initialize
+  renderPlayerList();
   updateDraftPicksDisplay();
-  advanceToNextTeam();
 </script>
 </body>
 </html>
