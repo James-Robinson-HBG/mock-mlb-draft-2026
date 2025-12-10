@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baseball Draft Simulator 2026 - Multiple Picks</title>
+<title>Baseball Draft Simulator 2026 - Color Logos</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%;
@@ -69,26 +69,6 @@
     }
   }
 
-  /* Right panel: picks list */
-  .teams-panel {
-    flex: 0 0 60%;
-    background: #fff;
-    border-radius: 0 12px 12px 0;
-    box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
-    padding: 25px 40px 35px 40px;
-    height: 100%;
-    box-sizing: border-box;
-    overflow-y: auto;
-  }
-  @media (max-width: 900px) {
-    .teams-panel {
-      flex: none;
-      border-radius: 0 0 12px 12px;
-      height: auto;
-      padding: 20px 25px;
-    }
-  }
-
   label {
     font-weight: 700;
     margin-top: 24px;
@@ -96,6 +76,7 @@
     font-size: 1.1rem;
     color: #444;
   }
+
   select, button {
     width: 100%;
     padding: 14px 16px;
@@ -153,22 +134,30 @@
     user-select: none;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 12px;
   }
   .pick-number {
     font-weight: 900;
     color: #005a9c;
-    margin-right: 20px;
     min-width: 30px;
     text-align: right;
   }
+  .pick-logo {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
   .pick-details {
     flex-grow: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   .pick-team {
     font-weight: 800;
-    margin-right: 15px;
+    color: #222;
   }
   .pick-player {
     font-weight: 600;
@@ -178,7 +167,6 @@
     font-style: italic;
     font-size: 0.9rem;
     color: #003366;
-    margin-left: 10px;
   }
 
   /* Scrollbar styling */
@@ -191,6 +179,14 @@
   }
   .draft-picks::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  /* Custom dropdown options with logos */
+  select option {
+    padding-left: 40px;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 24px 24px;
   }
 </style>
 </head>
@@ -216,51 +212,52 @@
       </div>
     </div>
   </section>
-
-  <aside class="teams-panel" aria-label="Draft Picks List">
-    <h2>Draft Picks Order</h2>
-    <div class="draft-picks" id="draftPicksList"></div>
-  </aside>
 </div>
 
 <script>
-  // Draft order array with multiple picks per team, each with a unique pick number
   const draftOrder = [
     { pick: 1, team: "Chicago White Sox" },
-    { pick: 2, team: "Minnesota Twins" },
-    { pick: 3, team: "Pittsburgh Pirates" },
-    { pick: 4, team: "Baltimore Orioles" },
-    { pick: 5, team: "Oakland Athletics" },
-    { pick: 6, team: "Atlanta Braves" },
-    { pick: 7, team: "Tampa Bay Rays" },
-    { pick: 8, team: "St. Louis Cardinals" },
-    { pick: 9, team: "Miami Marlins" },
-    { pick: 10, team: "Arizona Diamondbacks" },
-    { pick: 11, team: "Texas Rangers" },
-    { pick: 12, team: "San Francisco Giants" },
-    { pick: 13, team: "Kansas City Royals" },
-    { pick: 14, team: "Cleveland Guardians" },
-    { pick: 15, team: "Boston Red Sox" },
-    { pick: 16, team: "Colorado Rockies" },
-    { pick: 17, team: "Washington Nationals" },
-    { pick: 18, team: "Los Angeles Angels" },
-    { pick: 19, team: "Cincinnati Reds" },
-    { pick: 20, team: "Cleveland Guardians" }, // Comp Balance A
-    { pick: 21, team: "Boston Red Sox" },      // Second pick
-    { pick: 22, team: "San Diego Padres" },
-    { pick: 23, team: "Detroit Tigers" },
-    { pick: 24, team: "Chicago Cubs" },
-    { pick: 25, team: "Seattle Mariners" },
-    { pick: 26, team: "Milwaukee Brewers" },
-    { pick: 27, team: "Atlanta Braves" },      // Prospect Promo Incentive
-    { pick: 28, team: "New York Mets" },       // Penalty pick
-    { pick: 29, team: "Houston Astros" },      // Prospect Promo Incentive
-    { pick: 30, team: "Cleveland Guardians" } // Comp Balance A
+    { pick: 2, team: "Tampa Bay Rays" },
+    { pick: 3, team: "Minnesota Twins" },
+    { pick: 4, team: "San Francisco Giants" },
+    { pick: 5, team: "Pittsburgh Pirates" },
+    { pick: 6, team: "Kansas City Royals" },
+    { pick: 7, team: "Baltimore Orioles" },
+    { pick: 8, team: "Oakland Athletics" },
+    { pick: 9, team: "Atlanta Braves" },
+    { pick: 10, team: "Colorado Rockies" },
+    { pick: 11, team: "Washington Nationals" },
+    { pick: 12, team: "Los Angeles Angels" },
+    { pick: 13, team: "St. Louis Cardinals" },
+    { pick: 14, team: "Miami Marlins" },
+    { pick: 15, team: "Arizona Diamondbacks" },
+    { pick: 16, team: "Texas Rangers" },
+    { pick: 17, team: "Houston Astros" },
+    { pick: 18, team: "Cincinnati Reds" },
+    { pick: 19, team: "Cleveland Guardians" },
+    { pick: 20, team: "Boston Red Sox" },
+    { pick: 21, team: "San Diego Padres" },
+    { pick: 22, team: "Detroit Tigers" },
+    { pick: 23, team: "Chicago Cubs" },
+    { pick: 24, team: "Seattle Mariners" },
+    { pick: 25, team: "Milwaukee Brewers" },
+    { pick: 26, team: "Atlanta Braves" },
+    { pick: 27, team: "New York Mets" },
+    { pick: 28, team: "Houston Astros" },
+    { pick: 29, team: "Cleveland Guardians" },
+    { pick: 30, team: "Kansas City Royals" },
+    { pick: 31, team: "Arizona Diamondbacks" },
+    { pick: 32, team: "St. Louis Cardinals" },
+    { pick: 33, team: "Baltimore Orioles" },
+    { pick: 34, team: "Pittsburgh Pirates" },
+    { pick: 35, team: "New York Yankees" },
+    { pick: 36, team: "Philadelphia Phillies" },
+    { pick: 37, team: "Colorado Rockies" },
+    { pick: 38, team: "Colorado Rockies" },
+    { pick: 39, team: "Toronto Blue Jays" },
+    { pick: 40, team: "Los Angeles Dodgers" }
   ];
 
-  const teamsSet = new Set(draftOrder.map(d => d.team));
-
-  // Position abbreviations map
   const positionAbbreviations = {
     "Shortstop": "SS",
     "Pitcher": "P",
@@ -273,6 +270,39 @@
     "Center Field": "CF",
     "Left Field": "LF",
     "Right Field": "RF",
+  };
+
+  const teamLogos = {
+    "Arizona Diamondbacks": "https://upload.wikimedia.org/wikipedia/en/0/0e/Arizona_Diamondbacks_logo.svg",
+    "Atlanta Braves": "https://upload.wikimedia.org/wikipedia/en/2/25/Atlanta_Braves.svg",
+    "Baltimore Orioles": "https://upload.wikimedia.org/wikipedia/en/7/76/Baltimore_Orioles_logo.svg",
+    "Boston Red Sox": "https://upload.wikimedia.org/wikipedia/en/6/6d/RedSoxPrimary_HangingSocks.svg",
+    "Chicago Cubs": "https://upload.wikimedia.org/wikipedia/en/8/80/Chicago_Cubs_Logo.svg",
+    "Chicago White Sox": "https://upload.wikimedia.org/wikipedia/en/0/0c/Chicago_White_Sox_logo.svg",
+    "Cincinnati Reds": "https://upload.wikimedia.org/wikipedia/commons/0/01/Cincinnati_Reds_Logo.svg",
+    "Cleveland Guardians": "https://upload.wikimedia.org/wikipedia/en/4/4b/Cleveland_Guardians_logo.svg",
+    "Colorado Rockies": "https://upload.wikimedia.org/wikipedia/en/2/28/Colorado_Rockies_logo.svg",
+    "Detroit Tigers": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Detroit_Tigers_logo.svg",
+    "Houston Astros": "https://upload.wikimedia.org/wikipedia/en/c/c7/Houston_Astros_logo.svg",
+    "Kansas City Royals": "https://upload.wikimedia.org/wikipedia/en/9/9d/Kansas_City_Royals_Insignia.svg",
+    "Los Angeles Angels": "https://upload.wikimedia.org/wikipedia/en/7/7e/Los_Angeles_Angels_logo.svg",
+    "Los Angeles Dodgers": "https://upload.wikimedia.org/wikipedia/en/0/09/Los_Angeles_Dodgers_Logo.svg",
+    "Miami Marlins": "https://upload.wikimedia.org/wikipedia/en/f/fd/Miami_Marlins_logo.svg",
+    "Milwaukee Brewers": "https://upload.wikimedia.org/wikipedia/en/2/29/Milwaukee_Brewers_logo.svg",
+    "Minnesota Twins": "https://upload.wikimedia.org/wikipedia/en/2/2e/Minnesota_Twins_logo.svg",
+    "New York Mets": "https://upload.wikimedia.org/wikipedia/en/7/7b/New_York_Mets_logo.svg",
+    "New York Yankees": "https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Yankees_logo.svg",
+    "Oakland Athletics": "https://upload.wikimedia.org/wikipedia/en/6/6b/Oakland_A%27s_logo.svg",
+    "Philadelphia Phillies": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Philadelphia_Phillies_logo.svg",
+    "Pittsburgh Pirates": "https://upload.wikimedia.org/wikipedia/en/2/2a/Pittsburgh_Pirates_logo.svg",
+    "San Diego Padres": "https://upload.wikimedia.org/wikipedia/en/0/0c/San_Diego_Padres_logo.svg",
+    "San Francisco Giants": "https://upload.wikimedia.org/wikipedia/en/5/58/San_Francisco_Giants_Logo.svg",
+    "Seattle Mariners": "https://upload.wikimedia.org/wikipedia/en/8/8e/Seattle_Mariners_logo.svg",
+    "St. Louis Cardinals": "https://upload.wikimedia.org/wikipedia/en/6/6b/St._Louis_Cardinals_logo.svg",
+    "Tampa Bay Rays": "https://upload.wikimedia.org/wikipedia/en/c/c9/Tampa_Bay_Rays_logo.svg",
+    "Texas Rangers": "https://upload.wikimedia.org/wikipedia/en/4/43/Texas_Rangers_logo.svg",
+    "Toronto Blue Jays": "https://upload.wikimedia.org/wikipedia/en/0/0b/Toronto_Blue_Jays_logo.svg",
+    "Washington Nationals": "https://upload.wikimedia.org/wikipedia/en/1/1b/Washington_Nationals_logo.svg"
   };
 
   let players = [
@@ -310,27 +340,29 @@
     }
   ];
 
-  let draftPicks = []; // Will store {pick, team, player}
+  let draftPicks = [];
 
   const teamSelect = document.getElementById('teamSelect');
   const playerSelect = document.getElementById('playerSelect');
   const draftPicksList = document.getElementById('draftPicksList');
   const draftButton = document.getElementById('draftButton');
 
-  // Populate team select with unique teams in draft order
+  // Populate team select with unique teams in draft order, with logos
   function populateTeamSelect() {
     teamSelect.innerHTML = '';
-    draftOrder.forEach(({team}, index) => {
-      // Add team only once
-      if (!Array.from(teamSelect.options).some(opt => opt.text === team)) {
-        const option = document.createElement('option');
-        option.value = team;
-        option.textContent = team;
-        teamSelect.appendChild(option);
-      }
+    const uniqueTeams = [];
+    draftOrder.forEach(({team}) => {
+      if (!uniqueTeams.includes(team)) uniqueTeams.push(team);
+    });
+    uniqueTeams.forEach(team => {
+      const option = document.createElement('option');
+      option.value = team;
+      option.textContent = team;
+      teamSelect.appendChild(option);
     });
   }
 
+  // Custom rendering of player select without logos (native select doesn't support images well)
   function populatePlayerSelect() {
     playerSelect.innerHTML = '';
     if (players.length === 0) {
@@ -355,7 +387,6 @@
       draftPicksList.innerHTML = '<p>No picks made yet.</p>';
       return;
     }
-    // Sort picks by pick number
     draftPicks.sort((a,b) => a.pick - b.pick);
     draftPicks.forEach(({pick, team, player}) => {
       const div = document.createElement('div');
@@ -364,6 +395,12 @@
       const pickNumSpan = document.createElement('span');
       pickNumSpan.className = 'pick-number';
       pickNumSpan.textContent = pick;
+
+      const logoImg = document.createElement('img');
+      logoImg.className = 'pick-logo';
+      logoImg.src = teamLogos[team] || '';
+      logoImg.alt = `${team} logo`;
+      logoImg.loading = 'lazy';
 
       const detailsSpan = document.createElement('span');
       detailsSpan.className = 'pick-details';
@@ -385,6 +422,7 @@
       detailsSpan.appendChild(positionSpan);
 
       div.appendChild(pickNumSpan);
+      div.appendChild(logoImg);
       div.appendChild(detailsSpan);
 
       draftPicksList.appendChild(div);
@@ -426,7 +464,7 @@
     removeDraftedPlayer(player.name);
   });
 
-  // Initialize selects
+  // Initialize selects and display
   populateTeamSelect();
   populatePlayerSelect();
   updateDraftPicksDisplay();
