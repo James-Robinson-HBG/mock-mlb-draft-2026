@@ -62,6 +62,46 @@
       border-radius: 4px;
       font-weight: bold;
     }
+    .player-name {
+      color: #005a9c;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 15px;
+      top: 10px;
+    }
+    .close-button:hover {
+      color: #000;
+    }
   </style>
 </head>
 <body>
@@ -83,6 +123,19 @@
       <div id="draftPicksList">
         <p>No picks made yet.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal for player profile -->
+  <div id="playerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="modalClose">&times;</span>
+      <h2 id="modalPlayerName"></h2>
+      <p><strong>Date of Birth:</strong> <span id="modalPlayerDOB"></span></p>
+      <p><strong>Position:</strong> <span id="modalPlayerPosition"></span></p>
+      <p><strong>School:</strong> <span id="modalPlayerSchool"></span></p>
+      <p><strong>Throwing Hand:</strong> <span id="modalPlayerThrowing"></span></p>
+      <p><strong>Hitting Hand:</strong> <span id="modalPlayerHitting"></span></p>
     </div>
   </div>
 
@@ -121,8 +174,18 @@
       "Washington Nationals"
     ];
 
-    // Empty players array - add your prospects here
-    const players = [];
+    // Players array with one player added: John Doe
+    const players = [
+      {
+        name: "John Doe",
+        dob: "2004-05-15", // ISO format date of birth
+        position: "Shortstop",
+        school: "Springfield High School",
+        throwingHand: "Right",
+        hittingHand: "Left"
+      }
+      // Add more players here as needed
+    ];
 
     // State to track picks
     let draftPicks = [];
@@ -132,6 +195,16 @@
     const playerSelect = document.getElementById('playerSelect');
     const draftPicksList = document.getElementById('draftPicksList');
     const draftButton = document.getElementById('draftButton');
+
+    // Modal elements
+    const playerModal = document.getElementById('playerModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalPlayerName = document.getElementById('modalPlayerName');
+    const modalPlayerDOB = document.getElementById('modalPlayerDOB');
+    const modalPlayerPosition = document.getElementById('modalPlayerPosition');
+    const modalPlayerSchool = document.getElementById('modalPlayerSchool');
+    const modalPlayerThrowing = document.getElementById('modalPlayerThrowing');
+    const modalPlayerHitting = document.getElementById('modalPlayerHitting');
 
     function populateSelect(selectElement, items) {
       selectElement.innerHTML = '';
@@ -146,9 +219,22 @@
       items.forEach((item, index) => {
         const option = document.createElement('option');
         option.value = index;
-        option.textContent = item;
+        // For players, show name only
+        option.textContent = typeof item === 'string' ? item : item.name;
         selectElement.appendChild(option);
       });
+    }
+
+    // Calculate age from DOB string
+    function calculateAge(dobString) {
+      const dob = new Date(dobString);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
     }
 
     // Populate teams and players on load
@@ -169,7 +255,7 @@
       const player = players[playerIndex];
 
       // Check if player already drafted
-      if (draftPicks.some(pick => pick.player === player)) {
+      if (draftPicks.some(pick => pick.player.name === player.name)) {
         alert('This player has already been drafted.');
         return;
       }
@@ -191,6 +277,7 @@
       }
     });
 
+    // Update draft picks list with clickable player names
     function updateDraftPicksDisplay() {
       if (draftPicks.length === 0) {
         draftPicksList.innerHTML = '<p>No picks made yet.</p>';
@@ -201,10 +288,46 @@
       draftPicks.forEach((pick, index) => {
         const div = document.createElement('div');
         div.classList.add('draft-pick');
-        div.textContent = `Pick ${index + 1}: ${pick.team} selected ${pick.player}`;
+
+        const pickText = document.createTextNode(`Pick ${index + 1}: ${pick.team} selected `);
+        div.appendChild(pickText);
+
+        // Create clickable player name span
+        const playerSpan = document.createElement('span');
+        playerSpan.classList.add('player-name');
+        playerSpan.textContent = pick.player.name;
+        playerSpan.addEventListener('click', () => {
+          showPlayerProfile(pick.player);
+        });
+
+        div.appendChild(playerSpan);
         draftPicksList.appendChild(div);
       });
     }
+
+    // Show player profile in modal
+    function showPlayerProfile(player) {
+      modalPlayerName.textContent = player.name;
+      const age = calculateAge(player.dob);
+      modalPlayerDOB.textContent = `${player.dob} (${age} years old)`;
+      modalPlayerPosition.textContent = player.position;
+      modalPlayerSchool.textContent = player.school;
+      modalPlayerThrowing.textContent = player.throwingHand;
+      modalPlayerHitting.textContent = player.hittingHand;
+
+      playerModal.style.display = 'block';
+    }
+
+    // Close modal on clicking close button or outside modal content
+    modalClose.addEventListener('click', () => {
+      playerModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+      if (event.target === playerModal) {
+        playerModal.style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
